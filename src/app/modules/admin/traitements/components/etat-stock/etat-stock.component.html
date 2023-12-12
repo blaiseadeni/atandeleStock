@@ -1,0 +1,133 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <div class="card p-fluid">
+                <h5>Options de recherche </h5>
+                <div class="p-formgrid grid">
+                    
+                    <div class="field col-3">
+                        <label htmlFor="email2">Type mouvement</label>
+                        <p-dropdown
+                        placeholder="Sélectionner un mouvement " 
+                        [filter]="true"
+                        filterBy="name"
+                        [showClear]="true"></p-dropdown>
+                    </div>
+                    <div class="field col-3">
+                        <label htmlFor="email2">Article</label>
+                        <p-dropdown
+                        placeholder="Sélectionner un article " 
+                        [filter]="true"
+                        filterBy="name"
+                        [showClear]="true"></p-dropdown>
+                    </div>
+                    <div class="field col-3">
+                        <label htmlFor="email2">Status</label>
+                        <p-dropdown
+                        placeholder="Sélectionner un status " 
+                        [filter]="true"
+                        filterBy="name"
+                        [showClear]="true"></p-dropdown>
+                    </div>
+                    <div class="field col-3">
+                        <label htmlFor="email2">Référence</label>
+                        <p-inputNumber 
+                        inputId="locale-user"
+                        [minFractionDigits]="2">
+                    </p-inputNumber>
+                </div>
+                
+            </div>
+        </div>
+        
+        <p-table #dt 
+        [columns]="cols"
+        responsiveLayout="scroll" 
+        [globalFilterFields]="['name','country.name']" 
+        [rows]="10" 
+        [paginator]="true" 
+        [rowsPerPageOptions]="[10,20,30]" 
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+        selectionMode="multiple" 
+        [rowHover]="true"
+        dataKey="id">
+        <ng-template pTemplate="caption">
+            <h5 class="m-0">Etat du stock</h5>
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                <div class="field  col-2 ml">
+                    <label htmlFor="email2">De (Date 1)</label>
+                    <p-calendar
+                    [showIcon]="true" 
+                    inputId="icon">
+                </p-calendar>
+            </div>
+            <div class="field col-2">
+                <label htmlFor="email2">A (Date 2)</label>
+                <p-calendar
+                [showIcon]="true" 
+                inputId="icon">
+            </p-calendar>
+        </div>
+        <div class="margin-tp">
+            <button pButton pRipple 
+            label="Imprimer (F.S)" icon="pi pi-print" 
+            class="p-button-warning" ></button>
+        </div>
+    </div>
+</ng-template>
+<ng-template pTemplate="header">
+    <tr>
+        <th pSortableColumn="tile">#<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Article <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Référence<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Stock initial<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Montant initial<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Qté Entrées<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Montant Entrés<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Qté Sorties<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Montant Sorties<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Stock final<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Montant final<p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Status<p-sortIcon field="title"></p-sortIcon></th>
+        <th></th>
+    </tr>
+</ng-template>
+<ng-template pTemplate="body" let-product>
+    <tr>
+        
+        <td style="width:14%; min-width:10rem;">
+            <span class="p-column-title">#</span>
+            
+        </td>
+        <td style="width:14%; min-width:10rem;">
+            <span class="p-column-title">Libellé</span>
+            
+        </td>
+        <td style="width:14%; min-width:10rem;">
+            <span class="p-column-title">Créer par</span>
+            
+        </td>
+        <td style="width:14%; min-width:10rem;">
+            <span class="p-column-title">Créer le</span>
+            
+        </td>
+        
+        
+        <td>
+            <div class="flex">
+                <button pButton 
+                pRipple icon="pi pi-pencil" 
+                class="p-button-rounded p-button-success mr-2" 
+                ></button>
+                <button pButton pRipple 
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-warning"></button>
+            </div>
+        </td>
+    </tr>
+</ng-template>
+</p-table>
+</div>
+</div>
+</div>

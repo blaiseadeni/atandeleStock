@@ -1,0 +1,136 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple 
+                        label="Ajouter" icon="pi pi-plus" 
+                        class="p-button-primary" 
+                        (click)="ouvrirDialog()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [rowHover]="true"
+            [value]="familles"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion des familles</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="title">#<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Libélle<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer le<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer par<p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-famille let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:7%; min-width:5rem;">
+                        <span class="p-column-title">#</span>
+                        {{rowIndex + 1}}
+                    </td>
+                    <td style="width:25%; min-width:10rem;">
+                        <span class="p-column-title">Libélle</span>
+                        {{famille.libelle | uppercase}}
+                    </td>
+                    <td style="width:25%; min-width:10rem;">
+                        <span class="p-column-title">Créer le</span>
+                        {{famille.created | date:"dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:25%; min-width:10rem;">
+                        <span class="p-column-title">Créer par</span>
+                        
+                    </td>
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2"
+                            (click)="find(famille.id)" 
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(famille.id)"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="familleDialog" 
+[style]="{width: '500px'}"
+header="Details Famille" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="familleForm">
+        
+        <div class="field">
+            <label for="libelle">Libellé</label>
+            <input type="text"
+            pInputText 
+            autofocus
+            id="libelle"
+            formControlName="libelle"
+            placeholder="saisir le libellé"/>
+            <small
+            class="p-error"
+            *ngIf="
+            familleForm.controls['libelle'].dirty &&
+            familleForm.hasError('required', 'libelle')
+            ">* Libellé est obligatoire.</small>
+        </div>
+        
+    </form>
+    
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="famille">Etes-vous sûr de vouloir supprimer <b>{{famille.libelle}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(famille.id)"></button>
+    </ng-template>
+</p-dialog>

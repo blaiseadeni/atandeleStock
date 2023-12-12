@@ -1,0 +1,158 @@
+<div class="grid">
+    <div class="col-12 md:col-12">
+        <div class="card px-6 py-6">
+            <form>
+                <div class="card p-fluid">
+                    <div class="p-formgrid grid">
+                        <!-- <div class="field col-3 ml">
+                            <label htmlFor="name2">Total facture</label>
+                            <input pInputText id="name2" disabled type="text" />
+                        </div>
+                        
+                        <div class="field col-3 ml margin-top">
+                            <label htmlFor="name2">Facture payées</label>
+                            <input pInputText id="name2" disabled type="text" />
+                        </div>
+                        
+                        <div class="field col-3 ml margin-top">
+                            <label htmlFor="name2">Numéro Facture</label>
+                            <input pInputText id="name2" disabled type="text" />
+                            
+                        </div>-->
+                        <div class="field col-3 margin-tp">
+                            <label htmlFor="name2">Facture impayées</label>
+                            <input pInputText id="name2"  type="text" />
+                        </div>
+                        
+                        <div class=" mt-3">
+                            <button 
+                            pButton
+                            pRipple
+                            label="Imprimer"
+                            icon="pi pi-print"
+                            class="p-button-primary"></button>
+                        </div>
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                
+                <div class="card">
+                    <p-table 
+                    dataKey="name" 
+                    #dt 
+                    [columns]="cols"
+                    responsiveLayout="scroll" 
+                    [globalFilterFields]="['name','country.name']" 
+                    [rows]="10" 
+                    [paginator]="true" 
+                    [rowsPerPageOptions]="[10,20,30]" 
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+                    selectionMode="multiple" 
+                    [rowHover]="true"
+                    dataKey="id"
+                    [value]="factures"
+                    [tableStyle]="{ 'min-width': '60rem' }">
+                    <ng-template pTemplate="caption">
+                        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                            <h5 class="m-0">Liste des factures</h5>
+                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                <label htmlFor="name2"  class="mr-2">De :</label>
+                                <p-calendar placeholder="Date 1" [showIcon]="true" inputId="icon"></p-calendar>
+                                <label htmlFor="name2" class="ml-3 mr-2">A :</label>
+                                <p-calendar  placeholder="Date 2" [showIcon]="true" inputId="icon"></p-calendar>
+                                
+                            </span>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 5rem"></th>
+                            <th style="width: 5rem">#</th>
+                            <th pSortableColumn="name">Numéro Facture <p-sortIcon field="name"></p-sortIcon></th>
+                            <th pSortableColumn="name">Date facture <p-sortIcon field="name"></p-sortIcon></th>
+                            <th pSortableColumn="price">Montant <p-sortIcon field="price"></p-sortIcon></th>
+                            <th pSortableColumn="category">Remise <p-sortIcon field="category"></p-sortIcon></th>
+                            <th pSortableColumn="inventoryStatus">Montant payer <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+                            <th pSortableColumn="inventoryStatus">Reste à payer <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+                            <th pSortableColumn="inventoryStatus">Mode de paiement <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+                            <th pSortableColumn="inventoryStatus">Status <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+                            <th pSortableColumn="inventoryStatus">Créer par <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+                            <th>Action</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-facture let-rowIndex="rowIndex" let-expanded="expanded">
+                        <tr>
+                            <td>
+                                <button type="button" 
+                                pButton pRipple 
+                                [pRowToggler]="facture" 
+                                class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                            </td>
+                            <td  style="width:10%; min-width:5rem;">{{rowIndex+1}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.numeroFacture}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.dateFacture | date:"dd/MM/yyyy"}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.totalHt}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.remise}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.montantPayer}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.resteApayer}}</td>
+                            <td  style="width:10%; min-width:12rem;">{{facture.paiement}}</td>
+                            <td  style="width:10%; min-width:10rem;">{{facture.status}}</td>
+                            <td  style="width:10%; min-width:15rem;"></td>
+                            
+                            
+                            <td>
+                                <div class="flex">
+                                    <button pButton 
+                                    pRipple icon="pi pi-print" 
+                                    class="p-button-rounded p-button-success mr-2" 
+                                    ></button>
+                                    <button pButton pRipple 
+                                    icon="pi pi-ban"
+                                    class="p-button-rounded p-button-warning"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="rowexpansion" let-facture>
+                        <tr>
+                            <td colspan="15">
+                                <div class="p-3">
+                                    <p-table [value]="facture.detailFactures" dataKey="id">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th pSortableColumn="id">#<p-sortIcon field="price"></p-sortIcon></th>
+                                                <th pSortableColumn="customer">Article <p-sortIcon field="customer"></p-sortIcon></th>
+                                                <th pSortableColumn="date">Emballage <p-sortIcon field="date"></p-sortIcon></th>
+                                                <th pSortableColumn="status">Quantité <p-sortIcon field="status"></p-sortIcon></th>
+                                                <th pSortableColumn="status">Prix unitaire <p-sortIcon field="status"></p-sortIcon></th>
+                                                <th pSortableColumn="status">Prix totale <p-sortIcon field="status"></p-sortIcon></th>
+                                                <th style="width: 4rem"></th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-facture let-rowIndex="rowIndex">
+                                            <tr>
+                                                <td  style="width:5%; min-width:7rem;">{{rowIndex+1}}</td>
+                                                <td  style="width:10%; min-width:13rem;">{{facture.article}}</td>
+                                                <td  style="width:10%; min-width:13rem;">{{facture.emballage}}</td>
+                                                <td  style="width:10%; min-width:13rem;">{{facture.quantite}}</td>
+                                                <td  style="width:10%; min-width:13rem;">{{facture.prixUnit}}</td>
+                                                <td  style="width:10%; min-width:13rem;">{{facture.prixTotal}}</td>
+                                                <td><p-button type="button" icon="pi pi-plus"></p-button></td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage">
+                                            <tr>
+                                                <td colspan="6">There are no order for this product yet.</td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>

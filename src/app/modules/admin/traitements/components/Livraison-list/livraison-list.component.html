@@ -1,0 +1,127 @@
+
+<div class="card">
+    <p-table 
+    dataKey="name" 
+    #dt 
+    [columns]="cols"
+    responsiveLayout="scroll" 
+    [globalFilterFields]="['name','country.name']" 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,20,30]" 
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+    selectionMode="multiple" 
+    [rowHover]="true"
+    dataKey="id"
+    [value]="livraisons"
+    [tableStyle]="{ 'min-width': '60rem' }">
+    <ng-template pTemplate="caption">
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Liste des livraisons</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+            </span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th ></th>
+            <th >#</th>
+            <th pSortableColumn="name">Numéro Livraison <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="name">Numéro Commande <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="name">Date Livraison <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="price">Fournisseur <p-sortIcon field="price"></p-sortIcon></th>
+            <th pSortableColumn="category">Monnaie <p-sortIcon field="category"></p-sortIcon></th>
+            <th pSortableColumn="inventoryStatus">Location <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+            <th pSortableColumn="inventoryStatus">Observation <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+            <th pSortableColumn="inventoryStatus">Créer par <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+            <th>Action</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-livraison let-rowIndex="rowIndex" let-expanded="expanded">
+        <tr>
+            <td>
+                <button type="button"
+                pButton pRipple 
+                [pRowToggler]="livraison"
+                class="p-button-text p-button-rounded p-button-plain" 
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+            </td>
+            <td> {{rowIndex+1}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.numeroLivraison}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.numeroCommande}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.dateLivraison | date:"dd/MM/yyyy"}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.fournisseur}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.monnaie}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.location}}</td>
+            <td style="width:10%; min-width:13rem;" >{{livraison.observation}}</td>
+            <td style="width:10%; min-width:13rem;" ></td>
+            
+            <td>
+                <div class="flex">
+                    <button pButton 
+                    pRipple icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-success mr-2" 
+                    ></button>
+                    <button pButton pRipple 
+                    icon="pi pi-trash"
+                    (click)="deleteSelected(livraison.id)"
+                    class="p-button-rounded p-button-warning"></button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-livraison let-rowIndex="rowIndex">
+        <tr>
+            <td colspan="10">
+                <div class="p-3">
+                    <p-table [value]="livraison.detailLivraisons" dataKey="id">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th pSortableColumn="id">#<p-sortIcon field="price"></p-sortIcon></th>
+                                <th pSortableColumn="customer">Article <p-sortIcon field="customer"></p-sortIcon></th>
+                                <th pSortableColumn="status">Quantité <p-sortIcon field="status"></p-sortIcon></th>
+                                <th pSortableColumn="date">Emballage <p-sortIcon field="date"></p-sortIcon></th>
+                                <th pSortableColumn="status">Prix unitaire <p-sortIcon field="status"></p-sortIcon></th>
+                                <th pSortableColumn="status">Prix totale <p-sortIcon field="status"></p-sortIcon></th>
+                                <th style="width: 4rem"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-livraison let-rowIndex="rowIndex">
+                            <tr>
+                                <td  style="width:5%; min-width:7rem;">{{rowIndex+1}}</td>
+                                <td  style="width:10%; min-width:20rem;">{{livraison.article}}</td>
+                                <td  style="width:10%; min-width:13rem;">{{livraison.quantite}}</td>
+                                <td  style="width:10%; min-width:13rem;">{{livraison.emballage}}</td>
+                                <td  style="width:10%; min-width:13rem;">{{livraison.prixUnit}}</td>
+                                <td  style="width:10%; min-width:13rem;">{{livraison.prixTotal}}</td>
+                                
+                                
+                                <td><p-button type="button" icon="pi pi-plus"></p-button></td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="6">There are no order for this product yet.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+</div>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="livraison">Etes-vous sûr de vouloir supprimer <b>{{livraison.numeroLivraison}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(livraison.id)"></button>
+    </ng-template>
+</p-dialog>

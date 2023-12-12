@@ -1,0 +1,257 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <form [formGroup]="prixForm" >
+                <p-toast></p-toast>
+                <div class="card p-fluid">
+                    <h5>Destails de prix d'un article  </h5>
+                    <div class="p-formgrid grid">
+                        <div class="field col-3">
+                            <label htmlFor="articleId">Article</label>
+                            <p-dropdown
+                            placeholder="Sélectionner un article " 
+                            [filter]="true"
+                            filterBy="designation"
+                            [options]="articles"
+                            formControlName="articleId"
+                            id="articleId"
+                            optionLabel="designation"
+                            [showClear]="true"></p-dropdown>
+                            <small
+                            class="p-error"
+                            *ngIf="
+                            prixForm.controls['articleId'].dirty &&
+                            prixForm.hasError('required', 'articleId')
+                            ">* article obligatoire.</small>
+                        </div>
+                        <div class="field col-3">
+                            <label htmlFor="locationId">Location</label>
+                            <p-dropdown
+                            placeholder="Sélectionner une location " 
+                            [filter]="true"
+                            [options]="locations"
+                            optionLabel="designation"
+                            formControlName="locationId"
+                            id="locationId"
+                            filterBy="designation"
+                            [showClear]="true"></p-dropdown>
+                            <small
+                            class="p-error"
+                            *ngIf="
+                            prixForm.controls['locationId'].dirty &&
+                            prixForm.hasError('required', 'locationId')
+                            ">* location obligatoire.</small>
+                        </div>
+                        <div class="field col-2">
+                            <label htmlFor="monnaie">Monnaie</label>
+                            <p-dropdown
+                            placeholder="Monnaie " 
+                            [filter]="true"
+                            [options]="monnaies"
+                            formControlName="monnaie"
+                            id="monnaie"
+                            optionLabel="devise"
+                            filterBy="devise"
+                            [showClear]="true"></p-dropdown>
+                            <small
+                            class="p-error"
+                            *ngIf="
+                            prixForm.controls['monnaie'].dirty &&
+                            prixForm.hasError('required', 'monnaie')
+                            ">* monnaie obligatoire.</small>
+                        </div>
+                        <div class="field col-2">
+                            <label htmlFor="prixVenteGros">Prix de vente gros</label>
+                            <p-inputNumber 
+                            inputId="locale-user"
+                            formControlName="prixVenteGros"
+                            id="prixVenteGros"
+                            [minFractionDigits]="2">
+                        </p-inputNumber>
+                        <small
+                        class="p-error"
+                        *ngIf="
+                        prixForm.controls['prixVenteGros'].dirty &&
+                        prixForm.hasError('required', 'prixVenteGros')
+                        ">* prix de gros obligatoire.</small>
+                    </div>
+                    <div class="field col-2">
+                        <label htmlFor="prixVenteDetail">Prix de vente detail</label>
+                        <p-inputNumber  
+                        formControlName="prixVenteDetail"
+                        id="prixVenteDetail"
+                        inputId="locale-user"
+                        [minFractionDigits]="2">
+                    </p-inputNumber>
+                    <small
+                    class="p-error"
+                    *ngIf="
+                    prixForm.controls['prixVenteDetail'].dirty &&
+                    prixForm.hasError('required', 'prixVenteDetail')
+                    ">* prix de detail obligatoire.</small>
+                </div>
+            </div>
+        </div>
+    </form>    
+    <div class="card button-container my-3">
+        <div >
+            <button pButton pRipple 
+            label="Annuler" icon="pi pi-times" 
+            (click)="reset()"
+            class="p-button-danger"></button>
+        </div>
+        <div class="ml-3">
+            <button pButton pRipple 
+            label="Enregistrer"
+            icon="pi pi-check" 
+            (click)="save()"
+            class="p-button-success"></button>
+        </div>
+    </div>
+    
+    
+    
+    <p-table #dt 
+    [columns]="cols"
+    responsiveLayout="scroll" 
+    [globalFilterFields]="['name','country.name']" 
+    [rows]="10" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[10,20,30]" 
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+    selectionMode="multiple" 
+    [rowHover]="true"
+    [value]="prixLocations"
+    dataKey="id">
+    <ng-template pTemplate="caption">
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Gestion des prix par location</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+            </span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th>#</th>
+            <th pSortableColumn="title">Article <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="title">Location <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="title">Monnaie <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="title">Prix de vente gros <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="title">Prix de vente detail <p-sortIcon field="title"></p-sortIcon></th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-prix let-rowIndex="rowIndex">
+        <tr>
+            <td>{{rowIndex+1}}</td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Article</span>
+                {{prix.article}}
+            </td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Location</span>
+                {{prix.location}}
+            </td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Monnaie</span>
+                {{prix.monnaie}}
+            </td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Prix de vente gros </span>
+                {{prix.prixVenteGros}}
+            </td>
+            <td style="width:14%; min-width:13rem;">
+                <span class="p-column-title">Prix de vente detail </span>
+                {{prix.prixVenteDetail}}
+            </td>
+            
+            <td>
+                <div class="flex">
+                    <button pButton 
+                    pRipple icon="pi pi-pencil" 
+                    (click)="find(prix.id)" 
+                    class="p-button-rounded p-button-success mr-2" 
+                    ></button>
+                    <button pButton pRipple 
+                    icon="pi pi-trash"
+                    (click)="deleteSelected(prix.id)"
+                    class="p-button-rounded p-button-warning"></button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+</div>
+</div>
+</div>
+
+<p-dialog [(visible)]="prixtDialog" 
+[style]="{width: '450px'}"
+header="Details Paiement" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    
+    <form [formGroup]="paiementForm">
+        <div class="field">
+            <label for="name">Title 1</label>
+            <input type="text"
+            pInputText 
+            id="value1"
+            formControlName="value1"
+            autofocus
+            placeholder="saisir le title 1"/>
+            <small
+            class="p-error"
+            *ngIf="
+            paiementForm.controls['value1'].dirty &&
+            paiementForm.hasError('required', 'value1')
+            ">* Value1 is required.</small>
+        </div>
+        
+        <div class="field">
+            <label for="name">Title 2</label>
+            <input type="text"
+            pInputText
+            id="value2"
+            formControlName="value2"
+            autofocus
+            placeholder="saisir le title 2"/>
+            <small
+            class="p-error"
+            *ngIf="
+            paiementForm.controls['value2'].dirty &&
+            paiementForm.hasError('required', 'value2')
+            ">* Value1 is required.</small>
+        </div>
+    </form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="prixLocation">Etes-vous sûr de vouloir supprimer <b>{{prixLocation.id}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(prixLocation.id)"></button>
+    </ng-template>
+</p-dialog>

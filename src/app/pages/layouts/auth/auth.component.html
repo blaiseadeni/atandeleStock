@@ -1,0 +1,24 @@
+
+<div class="login-body">
+    <div class="login-panel"></div>
+    <div class="login-content mt-5">
+        <h1><span>CONNEXION</span> A  ATA NDELE Malish</h1>
+        
+        <div class="login-input-wrapper ">
+            <label for="" class="block text-900 font-medium mb-2">Utilisateur</label>
+            <input type="text" autocomplete="off" placeholder="Saisie utilisateur" pInputText>
+            <i class="pi pi-user mt-1"></i>
+        </div>
+        
+        <div class="login-input-wrapper">
+            <label for="" class="block text-900 font-medium mb-2">Mot de passe</label>
+            <input type="password" autocomplete="off" placeholder="Saisie mot de passe" pInputText>
+            <i class="pi pi-lock mt-1"></i>
+        </div>
+        
+        <button  [routerLink]="['/admin']"  pButton type="button" label="Connexion"><i class="pi pi-unlock "></i></button>  
+        
+        
+        <router-outlet></router-outlet>
+    </div>
+</div>

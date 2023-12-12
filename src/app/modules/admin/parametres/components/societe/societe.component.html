@@ -1,0 +1,269 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple 
+                        label="Ajouter" icon="pi pi-plus" 
+                        class="p-button-primary" 
+                        (click)="ouvrirDialog()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [rowHover]="true"
+            [value]="societes"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion des sociétés</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="title"># </th>
+                    <th pSortableColumn="title">Dénomination <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Id National <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">RCCM</th>
+                    <th pSortableColumn="title">TVA </th>
+                    <th pSortableColumn="title">Monnaie</th>
+                    <th pSortableColumn="title">Téléphone</th>
+                    <th pSortableColumn="title">Ville </th>
+                    <th pSortableColumn="title">Adresse </th>
+                    <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-societe let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:10%; min-width:7rem;">
+                        <span class="p-column-title">#</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:25%; min-width:15rem;">
+                        <span class="p-column-title">Dénomination</span>
+                        {{societe.denomination}}
+                    </td>
+                    <td style="width:10%; min-width:10rem;">
+                        <span class="p-column-title">Id National</span>
+                        {{societe.idNat}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">RCCM</span>
+                        {{societe.rccm}}
+                    </td>
+                    <td style="width:5%; min-width:10rem;">
+                        <span class="p-column-title">TVA</span>
+                        {{societe.tva }}
+                    </td>
+                    <td style="width:5%; min-width:8rem;" >
+                        <span class="p-column-title">Monnaie</span>
+                        {{societe.monnaie}}
+                    </td>
+                    <td style="width:7%; min-width:8rem;">
+                        <span class="p-column-title">Téléphone</span>
+                        {{societe.telephone}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Ville</span>
+                        {{societe.ville}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Adresse</span>
+                        {{societe.addresse}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Créer par </span>
+                        
+                    </td>
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2" 
+                            (click)="find(societe.id)"
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(societe.id)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="societeDialog" 
+[style]="{width: '800px'}"
+header="Details societe" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="societeForm">
+        
+        <div class="grid p-fluid mt-3">
+            <div class="field col-12 md:col-6">
+                <label for="denomination">Dénomination</label>
+                <input type="text"
+                pInputText 
+                id="denomination"
+                autofocus
+                formControlName="denomination"
+                placeholder="saisir la denomination"/>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['denomination'].dirty &&
+                societeForm.hasError('required', 'denomination')"
+                >* denomination obligatoire.</small>
+            </div>
+            
+            <div class="field col-6 md:col-6">
+                <label for="idNat">Id National</label>
+                <input type="text"
+                pInputText 
+                id="idNat"
+                autofocus
+                formControlName="idNat"
+                placeholder="saisir id national"/>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['idNat'].dirty &&
+                societeForm.hasError('required', 'idNat')
+                ">* id obligatoire.</small>
+            </div>
+            <div class="field col-6 md:col-6">
+                <label for="telephone">Téléphone</label>
+                <input type="text"
+                pInputText 
+                id="telephone"
+                autofocus
+                formControlName="telephone"
+                placeholder="saisir le telephone"/>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['telephone'].dirty &&
+                societeForm.hasError('required', 'telephone')
+                ">* telephone obligatoire.</small>
+            </div>
+            <div class="field col-6 md:col-6">
+                <label for="rccm">RCCM</label>
+                <input type="text"
+                pInputText 
+                id="rccm"
+                autofocus
+                formControlName="rccm"
+                placeholder="saisir le rccm"/>
+            </div>
+            
+            <div class="field col-6 md:col-6">
+                <label for="numeroAchat">Ville</label>
+                <input type="text"
+                pInputText 
+                id="ville"
+                formControlName="ville"
+                autofocus
+                placeholder="saisir la ville"/>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['ville'].dirty &&
+                societeForm.hasError('required', 'ville')
+                ">* ville obligatoire.</small>
+            </div>
+            <div class="field col-6 md:col-6">
+                <label for="tva">TVA</label>
+                <p-inputNumber type="number"
+                id="tva"
+                formControlName="tva"
+                autofocus
+                placeholder="saisir la tva"></p-inputNumber>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['tva'].dirty &&
+                societeForm.hasError('required', 'tva')
+                ">* tva obligatoire.</small>
+            </div>
+            <div class="field col-6 md:col-6">
+                <label for="addresse">Adresse</label>
+                <input type="text"
+                pInputText 
+                id="addresse"
+                formControlName="addresse"
+                autofocus
+                placeholder="saisir l'addresse"/>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['addresse'].dirty &&
+                societeForm.hasError('required', 'addresse')
+                ">* adresse obligatoire.</small>
+            </div>
+            <div class="field col-6 md:col-6">
+                <label for="monnaie">Monnaie</label>
+                <input type="text"
+                pInputText 
+                id="monnaie"
+                formControlName="monnaie"
+                autofocus
+                placeholder="saisir la monnaie"/>
+                <small
+                class="p-error"
+                *ngIf="
+                societeForm.controls['monnaie'].dirty &&
+                societeForm.hasError('required', 'monnaie')
+                ">* monnaie obligatoire.</small>
+            </div>
+            
+        </div>
+    </form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="societe">Etes-vous sûr de vouloir supprimer <b>{{societe.denomination}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(societe.id)"></button>
+    </ng-template>
+</p-dialog>

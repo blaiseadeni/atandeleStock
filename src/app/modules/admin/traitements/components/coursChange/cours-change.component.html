@@ -1,0 +1,195 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple 
+                        label="Ajouter" icon="pi pi-plus" 
+                        class="p-button-primary" 
+                        (click)="ouvrirDialog()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [rowHover]="true"
+            [value]="coursChanges"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion de cours de change</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="title"># <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Date encours <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Monnaie <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Taux d'achat <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Taux de vente <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-coursChange let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:7%; min-width:7rem;">
+                        <span class="p-column-title">#</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:14%; min-width:15rem;">
+                        <span class="p-column-title">Date encours</span>
+                        {{coursChange.dateEnCours | date:"dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:14%; min-width:10rem;">
+                        <span class="p-column-title">Monnaie</span>
+                        {{coursChange.monnaie}}
+                    </td>
+                    <td style="width:14%; min-width:15rem;">
+                        <span class="p-column-title">Taux d'achat</span>
+                        {{coursChange.tauxAchat}}
+                    </td>
+                    <td style="width:14%; min-width:10rem;">
+                        <span class="p-column-title">Taux de vente</span>
+                        {{coursChange.tauxVente}}
+                    </td>
+                    
+                    <td style="width:15%; min-width:20rem;">
+                        <span class="p-column-title">Créer par</span>
+                        
+                    </td>
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2" 
+                            (click)="find(coursChange.id)"
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(coursChange.id)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="coursChandeDialog" 
+[style]="{width: '500px'}"
+header="Details Cours de change" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="coursChaneForm">
+        <div class="field">
+            <label for="name">Date encours</label>
+            <p-calendar
+            [showIcon]="true"
+            appendTo="body"
+            id="dateEncours"
+            required
+            autofocus
+            placeholder="sélectionner une date"
+            formControlName="dateEncours">
+        </p-calendar>
+        <small
+        class="p-error"
+        *ngIf="
+        coursChaneForm.controls['dateEncours'].dirty &&
+        coursChaneForm.hasError('required', 'dateEncours')
+        ">* date obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="monnaie">Monnaie</label>
+        <p-dropdown 
+        formControlName="monnaie" 
+        [options]="monnaies" 
+        optionLabel="devise"
+        [filter]="true"
+        filterBy="devise"
+        id="monnaie"
+        appendTo="body">
+    </p-dropdown>
+    <small
+    class="p-error"
+    *ngIf="
+    coursChaneForm.controls['monnaie'].dirty &&
+    coursChaneForm.hasError('required', 'monnaie')"
+    >* monnaie obligatoire.</small>
+</div>
+<div class="field">
+    <label for="tauxAchat">Taux d'achat</label>
+    <p-inputNumber type="text"
+    id="tauxAchat"
+    formControlName="tauxAchat"
+    autofocus
+    placeholder="saisir le taux d'achat"></p-inputNumber>
+    <small
+    class="p-error"
+    *ngIf="
+    coursChaneForm.controls['tauxAchat'].dirty &&
+    coursChaneForm.hasError('required', 'tauxAchat')
+    ">* taux d'achat obligatoire.</small>
+</div>
+<div class="field">
+    <label for="tauxVente">Taux de vente</label>
+    <p-inputNumber type="text"
+    id="tauxVente"
+    formControlName="tauxVente"
+    autofocus
+    placeholder="saisir le taux de vente"></p-inputNumber>
+    <small
+    class="p-error"
+    *ngIf="
+    coursChaneForm.controls['tauxVente'].dirty &&
+    coursChaneForm.hasError('required', 'tauxVente')
+    ">* taux de vente obligatoire.</small>
+</div>
+
+</form>   
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="coursChange">Etes-vous sûr de vouloir supprimer <b>{{coursChange.monnaie}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(coursChange.id)"></button>
+    </ng-template>
+</p-dialog>

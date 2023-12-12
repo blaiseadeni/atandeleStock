@@ -1,0 +1,256 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple 
+                        label="Ajouter" icon="pi pi-plus" 
+                        class="p-button-primary" 
+                        (click)="ouvrirDialog()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table 
+            #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [rowHover]="true"
+            [value]="articles"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion des articles</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="title">#<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Code<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Famille<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Designation <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Emballage gros<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Emballage detail<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Quatité detail<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Stock minimal<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer le<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer par<p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-article let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:7%; min-width:5rem;">
+                        <span class="p-column-title">numero</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:8%; min-width:10rem;">
+                        <span class="p-column-title">code</span>
+                        {{article.code}}
+                    </td>
+                    <td style="width:10%; min-width:10rem;">
+                        <span class="p-column-title">Famille</span>
+                        {{article.famille}}
+                    </td>
+                    <td style="width:14%; min-width:15rem;">
+                        <span class="p-column-title">designation</span>
+                        {{article.designation}}
+                    </td>
+                    <td style="width:10%; min-width:11rem;">
+                        <span class="p-column-title">emballageGrosId</span>
+                        {{article.emballageGros}}
+                    </td>
+                    <td style="width:10%; min-width:11rem;">
+                        <span class="p-column-title">emballageDetailId</span>
+                        {{article.emballageDetail}}
+                    </td>
+                    <td style="width:10%; min-width:10rem;">
+                        <span class="p-column-title">quantiteDetail</span>
+                        {{article.quantiteDetail}}
+                    </td>
+                    <td style="width:10%; min-width:10rem;">
+                        <span class="p-column-title">stockMinimal</span>
+                        {{article.stockMinimal}}
+                    </td>
+                    <td style="width:14%; min-width:10rem;">
+                        <span class="p-column-title">created</span>
+                        {{article.created | date:"dd/MM/yyyy"}}
+                    </td>
+                    
+                    <td style="width:14%; min-width:10rem;">
+                        <span class="p-column-title">creer par</span>
+                        
+                    </td>
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2" 
+                            (click)="find(article.id)"
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(article.id)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="articleDialog" 
+[style]="{width: '500px'}"
+header="Details Article" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    
+    <form [formGroup]="articleForm">
+        
+        <div class="field">
+            <label for="familleId">Famille</label>
+            <p-dropdown 
+            formControlName="familleId" 
+            [options]="familles" 
+            optionLabel="libelle"
+            [filter]="true"
+            filterBy="libelle"
+            id="familleId"
+            appendTo="body">
+        </p-dropdown>
+        <small
+        class="p-error"
+        *ngIf="
+        articleForm.controls['familleId'].dirty &&
+        articleForm.hasError('required', 'familleId')"
+        >* famille obligatoire.</small>
+    </div>
+    
+    <div class="field">
+        <label for="designation">Désignation</label>
+        <input type="text"
+        pInputText
+        id="designation"
+        formControlName="designation"
+        autofocus
+        placeholder="saisir la designation"/>
+        <small
+        class="p-error"
+        *ngIf="
+        articleForm.controls['designation'].dirty &&
+        articleForm.hasError('required', 'designation')
+        ">* designation obligatoire.</small>
+    </div>
+    
+    <div class="field">
+        <label for="emballageGrosId">Emballage gros</label>
+        <p-dropdown 
+        formControlName="emballageGrosId" 
+        [options]="emballages" 
+        optionLabel="libelle"
+        [filter]="true"
+        filterBy="libelle"
+        id="emballageGrosId"
+        appendTo="body">
+    </p-dropdown>
+    <small
+    class="p-error"
+    *ngIf="
+    articleForm.controls['emballageGrosId'].dirty &&
+    articleForm.hasError('required', 'emballageGrosId')"
+    >* emballage gros obligatoire.</small>
+</div>
+
+<div class="field">
+    <label for="emballageDetailId">Emballage detail</label>
+    <p-dropdown 
+    formControlName="emballageDetailId" 
+    [options]="emballages" 
+    optionLabel="libelle"
+    [filter]="true"
+    filterBy="libelle"
+    id="emballageDetailId"
+    appendTo="body">
+</p-dropdown>
+<small
+class="p-error"
+*ngIf="
+articleForm.controls['emballageDetailId'].dirty &&
+articleForm.hasError('required', 'emballageDetailId')"
+>* emballage detail obligatoire.</small>
+</div>
+
+<div class="field">
+    <label for="name">Quatité detail</label>
+    <p-inputNumber type="number"
+    id="quantiteDetail"
+    formControlName="quantiteDetail"
+    autofocus
+    placeholder="saisir la quantité"></p-inputNumber>
+    <small
+    class="p-error"
+    *ngIf="
+    articleForm.controls['quantiteDetail'].dirty &&
+    articleForm.hasError('required', 'quantiteDetail')
+    ">* quantité obligatoire.</small>
+</div>
+<div class="field ">
+    <label for="stockMinimal">Stock minimal</label>
+    <p-inputNumber 
+    class="text-end"
+    type="number"
+    id="stockMinimal"
+    formControlName="stockMinimal"
+    autofocus
+    placeholder="saisir le stock minimal"></p-inputNumber>
+    <small
+    class="p-error"
+    *ngIf="
+    articleForm.controls['stockMinimal'].dirty &&
+    articleForm.hasError('required', 'stockMinimal')
+    ">* stock minimal obligatoire.</small>
+</div>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="article">Etes-vous sûr de vouloir supprimer <b>{{article.designation}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(article.id)"></button>
+    </ng-template>
+</p-dialog>

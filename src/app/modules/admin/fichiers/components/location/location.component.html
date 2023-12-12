@@ -1,0 +1,316 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple 
+                        label="Ajouter" icon="pi pi-plus" 
+                        class="p-button-primary" 
+                        (click)="ouvrirDialog()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [rowHover]="true"
+            [value]="locations"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion des locations</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="title"># </th>
+                    <th pSortableColumn="title">Société <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Designation <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Date Création</th>
+                    <th pSortableColumn="title">Date de clôture </th>
+                    <th pSortableColumn="title">Etat</th>
+                    <th pSortableColumn="title">Numéro d'achat </th>
+                    <th pSortableColumn="title">Numéro de commande </th>
+                    <th pSortableColumn="title">Numéro de facture</th>
+                    <th pSortableColumn="title">Numéro de livraison </th>
+                    <th pSortableColumn="title">Adresse </th>
+                    <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-location let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:5%; min-width:5rem;">
+                        <span class="p-column-title">numero</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:25%; min-width:15rem;">
+                        <span class="p-column-title">Société</span>
+                        {{location.societe}}
+                    </td>
+                    <td style="width:10%; min-width:10rem;">
+                        <span class="p-column-title">designation</span>
+                        {{location.designation}}
+                    </td>
+                    <td style="width:5%; min-width:10rem;">
+                        <span class="p-column-title">Date de Création</span>
+                        {{location.dateCreation | date: "dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:5%; min-width:10rem;">
+                        <span class="p-column-title">Date fermeture</span>
+                        {{location.dateCloture | date: "dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:5%; min-width:8rem;" *ngIf="location.flag == true">
+                        <span class="p-column-title">Etat</span>
+                        En activité
+                    </td>
+                    <td style="width:7%; min-width:8rem;" *ngIf="!location.flag == true">
+                        <span class="p-column-title">Etat</span>
+                        Fermer
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Numéro d'achat</span>
+                        {{location.numeroAchat}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Numéro de commande</span>
+                        {{location.numeroCommande}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Numéro de facture </span>
+                        {{location.numeroFacture}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Numéro de livraison </span>
+                        {{location.numeroLivraison}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Adresse </span>
+                        {{location.addresse}}
+                    </td>
+                    <td style="width:10%; min-width:15rem;">
+                        <span class="p-column-title">Créer par </span>
+                    </td>
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2" 
+                            (click)="find(location.id)"
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(location.id)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="locationDialog" 
+[style]="{width: '600px'}"
+header="Details Location" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="locationForm">
+        
+        <div class="grid p-fluid mt-3">
+            <div class="field col-12 md:col-6">
+                <label for="societeId">Société</label>
+                <p-dropdown 
+                formControlName="societeId" 
+                [options]="societes" 
+                optionLabel="denomination"
+                [filter]="true"
+                filterBy="denomination"
+                id="societeId"
+                appendTo="body">
+            </p-dropdown>
+            <small
+            class="p-error"
+            *ngIf="
+            locationForm.controls['societeId'].dirty &&
+            locationForm.hasError('required', 'societeId')"
+            >* société obligatoire.</small>
+        </div>
+        
+        <div class="field col-6 md:col-6">
+            <label for="designation">Désignation</label>
+            <input type="text"
+            pInputText 
+            id="designation"
+            autofocus
+            formControlName="designation"
+            placeholder="saisir la designation"/>
+            <small
+            class="p-error"
+            *ngIf="
+            locationForm.controls['designation'].dirty &&
+            locationForm.hasError('required', 'designation')
+            ">* designation obligatoire.</small>
+        </div>
+        <div class="field col-6 md:col-6">
+            <label for="dateCreation">Date de création</label>
+            <p-calendar
+            [showIcon]="true"
+            appendTo="body"
+            formControlName="dateCreation"
+            id="dateCreation"
+            required
+            autofocus
+            placeholder="sélectionner une date"
+            formControlName="dateCreation">
+        </p-calendar>
+        <small
+        class="p-error"
+        *ngIf="
+        locationForm.controls['dateCreation'].dirty &&
+        locationForm.hasError('required', 'dateCreation')
+        ">* date de création obligatoire.</small>
+    </div>
+    <div class="field col-6 md:col-6">
+        <label for="dateCloture">Date de clôture</label>
+        <p-calendar
+        [showIcon]="true"
+        appendTo="body"
+        id="dateCloture"
+        formControlName="dateCloture"
+        autofocus
+        placeholder="sélectionner une date"
+        formControlName="dateCloture">
+    </p-calendar>
+</div>
+
+<div class="field col-6 md:col-6">
+    <label for="numeroAchat">Numéro d'achat</label>
+    <input type="text"
+    pInputText 
+    id="numeroAchat"
+    formControlName="numeroAchat"
+    autofocus
+    placeholder="saisir le numéro d'achat"/>
+    <small
+    class="p-error"
+    *ngIf="
+    locationForm.controls['numeroAchat'].dirty &&
+    locationForm.hasError('required', 'numeroAchat')
+    ">* numéro d'achat obligatoire.</small>
+</div>
+<div class="field col-6 md:col-6">
+    <label for="numeroCommande">numéro de commande</label>
+    <input type="text"
+    pInputText 
+    id="numeroCommande"
+    formControlName="numeroCommande"
+    autofocus
+    placeholder="saisir le numéro de commande"/>
+    <small
+    class="p-error"
+    *ngIf="
+    locationForm.controls['numeroCommande'].dirty &&
+    locationForm.hasError('required', 'numeroCommande')
+    ">* numéro de commande obligatoire.</small>
+</div>
+<div class="field col-6 md:col-6">
+    <label for="numeroLivraison">Numéro de livraison</label>
+    <input type="text"
+    pInputText 
+    id="numeroLivraison"
+    formControlName="numeroLivraison"
+    autofocus
+    placeholder="saisir le numéro de livraison"/>
+    <small
+    class="p-error"
+    *ngIf="
+    locationForm.controls['numeroLivraison'].dirty &&
+    locationForm.hasError('required', 'numeroLivraison')
+    ">* numéro de livraison obligatoire.</small>
+</div>
+<div class="field col-6 md:col-6">
+    <label for="numeroFacture">Numéro de facture</label>
+    <input type="text"
+    pInputText 
+    id="numeroFacture"
+    formControlName="numeroFacture"
+    autofocus
+    placeholder="saisir le numéro de facture"/>
+    <small
+    class="p-error"
+    *ngIf="
+    locationForm.controls['numeroFacture'].dirty &&
+    locationForm.hasError('required', 'numeroFacture')
+    ">* numéro de facture obligatoire.</small>
+</div>
+<div class="field col-12 md:col-12">
+    <label for="addresse">Adresse</label>
+    <input type="text"
+    pInputText 
+    id="addresse"
+    formControlName="addresse"
+    autofocus
+    placeholder="saisir l'addresse"/>
+    <small
+    class="p-error"
+    *ngIf="
+    locationForm.controls['addresse'].dirty &&
+    locationForm.hasError('required', 'addresse')
+    ">* adresse obligatoire.</small>
+</div>
+<div class="field col-6 md:col-6">
+    <p-checkbox 
+    [binary]="true"
+    label="En activité" 
+    inputId="binary"
+    (onChange)="active($event)"
+    >
+</p-checkbox>
+</div>
+</div>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="location">Etes-vous sûr de vouloir supprimer <b>{{location.designation}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(location.id)"></button>
+    </ng-template>
+</p-dialog>

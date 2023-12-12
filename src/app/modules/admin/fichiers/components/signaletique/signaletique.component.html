@@ -1,0 +1,240 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple 
+                        label="Ajouter" icon="pi pi-plus" 
+                        class="p-button-primary" 
+                        (click)="ouvrirDialog()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [rowHover]="true"
+            [value]="signaletiques"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion des clients</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="title"># <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Categorie <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Nom <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Téléphone <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">addresse <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Raison sociale <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Email <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer le <p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-signaletique let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:7%; min-width:7rem;">
+                        <span class="p-column-title">#</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:15%; min-width:15rem;">
+                        <span class="p-column-title">Categorie</span>
+                        {{signaletique.categorie}}
+                    </td>
+                    <td style="width:15%; min-width:20rem;">
+                        <span class="p-column-title">Nom</span>
+                        {{signaletique.nom}}
+                    </td>
+                    <td style="width:14%; min-width:8rem;">
+                        <span class="p-column-title">Téléphone</span>
+                        {{signaletique.telephone}}
+                    </td>
+                    <td style="width:15%; min-width:20rem;">
+                        <span class="p-column-title">addresse</span>
+                        {{signaletique.addresse}}
+                    </td>
+                    <td style="width:15%; min-width:20rem;">
+                        <span class="p-column-title">Raison sociale</span>
+                        {{signaletique.raisonSociale}}
+                    </td>
+                    <td style="width:15%; min-width:15rem;">
+                        <span class="p-column-title">Email</span>
+                        {{signaletique.email}}
+                    </td>
+                    <td style="width:15%; min-width:10rem;">
+                        <span class="p-column-title">Créer par</span>
+                        
+                    </td>
+                    <td style="width:14%; min-width:8rem;">
+                        <span class="p-column-title">Créer le</span>
+                        
+                    </td>
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2" 
+                            (click)="find(signaletique.id)" 
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(signaletique.id)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="signaletiqueDialog" 
+[style]="{width: '500px'}"
+header="Details Client" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="signaletiqueForm">  
+        <div class="field">
+            <label for="categorie">Categorie</label>
+            <p-dropdown 
+            formControlName="categorie" 
+            [options]="items" 
+            optionLabel="name"
+            [filter]="true"
+            filterBy="name"
+            id="categorie"
+            appendTo="body">
+        </p-dropdown>
+        <small
+        class="p-error"
+        *ngIf="
+        signaletiqueForm.controls['categorie'].dirty &&
+        signaletiqueForm.hasError('required', 'categorie')"
+        >* categorie obligatoire.</small>
+    </div>
+    
+    <div class="field">
+        <label for="nom">Nom</label>
+        <input type="text" 
+        pInputText
+        id="nom"
+        formControlName="nom"
+        autofocus
+        placeholder="saisir le nom"/>
+        <small
+        class="p-error"
+        *ngIf="
+        signaletiqueForm.controls['nom'].dirty &&
+        signaletiqueForm.hasError('required', 'nom')
+        ">* nom obligatoire.</small>
+    </div>
+    
+    <div class="field">
+        <label for="raisonSociale">Raison sociale</label>
+        <input type="text"
+        pInputText 
+        id="raisonSociale"
+        formControlName="raisonSociale"
+        autofocus
+        placeholder="saisir la raison sociale"/>
+        <small
+        class="p-error"
+        *ngIf="
+        signaletiqueForm.controls['raisonSociale'].dirty &&
+        signaletiqueForm.hasError('required', 'raisonSociale')
+        ">* raison sociale obligatoire.</small>
+    </div>
+    
+    <div class="field">
+        <label for="addresse">addresse</label>
+        <input type="text"
+        pInputText 
+        id="addresse"
+        formControlName="addresse" 
+        autofocus
+        placeholder="saisir l'addresse"/>
+        <small
+        class="p-error"
+        *ngIf="
+        signaletiqueForm.controls['addresse'].dirty &&
+        signaletiqueForm.hasError('required', 'addresse')
+        ">* addresse obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="telephone">Téléphone</label>
+        <input type="text"
+        pInputText 
+        id="telephone"
+        formControlName="telephone"
+        autofocus
+        placeholder="saisir le telephone"/>
+        <small
+        class="p-error"
+        *ngIf="
+        signaletiqueForm.controls['telephone'].dirty &&
+        signaletiqueForm.hasError('required', 'telephone')
+        ">* telephone obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="email">Email</label>
+        <input type="email"
+        pInputText 
+        id="email"
+        formControlName="email"
+        required autofocus
+        placeholder="saisir le mail"/>
+        <small
+        class="p-error"
+        *ngIf="
+        signaletiqueForm.controls['email'].dirty &&
+        signaletiqueForm.hasError('required', 'email')
+        ">* email obligatoire.</small>
+    </div>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="deleteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="signaletique">Etes-vous sûr de vouloir supprimer <b>{{signaletique.nom}}</b> ?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(signaletique.id)"></button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,335 @@
+<p-toast></p-toast>
+<div class="grid">
+    <div class="col-12 md:col-12">
+        <div class="card px-6 py-6">
+            <form [formGroup]="factureForm">
+                <div class="card p-fluid">
+                    <h5>Entête de la facture </h5>
+                    <div class="p-formgrid grid">
+                        <div class="field col-3">
+                            <label htmlFor="numeroFacture">Numéro Facture</label>
+                            <input pInputText 
+                            formControlName="numeroFacture"
+                            id="numeroFacture"
+                            type="text" />
+                            <small
+                            class="p-error"
+                            *ngIf="
+                            factureForm.controls['numeroFacture'].dirty &&
+                            factureForm.hasError('required', 'numeroFacture')"
+                            >* numero facture obligatoire.</small>
+                        </div>
+                        
+                        <div class="field col-3 ">
+                            <label htmlFor="typeClient"
+                            style="color: red;">
+                            Cocher si c'est un client fidele !</label>
+                            <div class="flex mt-2">
+                                <div class="field-radiobutton">
+                                    <p-checkbox 
+                                    [binary]="true"
+                                    label="Est client fidele" 
+                                    inputId="binary"
+                                    (onChange)="active($event)"
+                                    >
+                                </p-checkbox>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="field col-4" *ngIf="!estClient == true">
+                        <label htmlFor="acheteur">Acheteur</label>
+                        <input pInputText 
+                        id="acheteur"
+                        formControlName="acheteur"
+                        type="text" />
+                    </div>
+                    <div class="field col-4" *ngIf="estClient == true">
+                        <label htmlFor="cleintId">Client</label>
+                        <p-dropdown
+                        placeholder="Sélectionner un type client " 
+                        [filter]="true"
+                        id="cleintId"
+                        [autoDisplayFirst]="false"
+                        formControlName="cleintId"
+                        [options]="clients"
+                        optionLabel="nom"
+                        filterBy="nom"
+                        (onChange)="getClient($event)"
+                        [showClear]="true"></p-dropdown>
+                    </div>
+                    <div class="field col-2">
+                        <label htmlFor="email2">Monnaie</label>
+                        <p-dropdown
+                        id="monnaie"
+                        formControlName="monnaie"
+                        [filter]="true"
+                        [autoDisplayFirst]="false"
+                        filterBy="devise"
+                        [options]="monnaies"
+                        optionLabel="devise"
+                        [showClear]="true"></p-dropdown>
+                    </div>
+                    <div class="field col-2">
+                        <label htmlFor="email2">Taux de vente</label>
+                        <p-inputNumber
+                        id="taux"
+                        formControlName="taux"
+                        inputId="locale-user"
+                        [minFractionDigits]="2">
+                    </p-inputNumber>
+                </div>
+                <div class="field col-4">
+                    <label htmlFor="email2">Mode de paiement</label>
+                    <p-dropdown
+                    [autoDisplayFirst]="false"
+                    [options]="modes" 
+                    optionLabel="name" 
+                    [filter]="true"
+                    (onChange)="getMontant()"
+                    id="paiement"
+                    formControlName="paiement"
+                    filterBy="name"
+                    [showClear]="true"></p-dropdown>
+                </div>
+                <div class="field col-3">
+                    <label htmlFor="remise">Remise</label>
+                    <p-inputNumber 
+                    id="remise"
+                    formControlName="remise"
+                    (onInput)="summarycalculation()"
+                    inputId="locale-user" 
+                    [minFractionDigits]="2">
+                </p-inputNumber>
+            </div>
+            <div class="field col-3">
+                <label htmlFor="email2">Montant payer</label>
+                <p-inputNumber 
+                id="montantPayer"
+                formControlName="montantPayer"
+                inputId="locale-user" 
+                (onInput)="summarycalculation()"
+                [minFractionDigits]="2">
+            </p-inputNumber>
+        </div>
+        
+        <div class="field col-2">
+            <label htmlFor="email2" style="font-size:larger ; 
+            font-style: italic;
+            color: rgb(96, 30, 210);">
+            {{portefeuille.montant}} {{portefeuille.monnaie}}</label>
+            
+        </div>
+        <div class="field col-3" *ngIf="avecPortefeuille == true">
+            <label htmlFor="montantPortefeuille">Portefeuille</label>
+            <p-inputNumber 
+            id="montantPortefeuille"
+            formControlName="montantPortefeuille"
+            inputId="locale-user" 
+            (onInput)="summarycalculation()"
+            [minFractionDigits]="2">
+        </p-inputNumber>
+    </div>
+</div>
+</div>
+
+
+<p-table #dt
+[columns]="cols"
+[value]="newRowsList.controls"
+[globalFilterFields]="['name','country.name']"
+[rows]="10"
+[paginator]="true"
+[rowsPerPageOptions]="[10,20,30]"
+[showCurrentPageReport]="true"
+[rowHover]="true"
+responsiveLayout="scroll"
+currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+selectionMode="multiple"
+dataKey="id">
+<ng-template pTemplate="caption">
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <h5 class="m-0">
+            Lignes de facture
+        </h5>
+        <div class="my-2">
+            <button (click)="addNewRows()"
+            pButton
+            pRipple
+            label="Ajouter une ligne"
+            icon="pi pi-plus"
+            class="p-button-primary"></button>
+        </div>
+    </div>
+</ng-template>
+<ng-template pTemplate="header">
+    <tr>
+        <th >
+            N°
+        </th>
+        <th >
+            Article
+        </th>
+        <th >
+            Emballage
+        </th>
+        <th>
+            Quantité
+        </th>
+        <th >
+            Prix Unitaire
+        </th>
+        <th >
+            Prix Totale
+        </th>
+        <th>Retirer</th>
+    </tr>
+</ng-template>
+<ng-template pTemplate="body" let-rowIndex="rowIndex">
+    <ng-container formArrayName="factureDetails">
+        <tr [formGroupName]="rowIndex">
+            <td>
+                {{rowIndex + 1}}
+            </td>
+            <td style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Title 1</span>
+                <p-dropdown
+                placeholder="Sélectionner un article " 
+                [filter]="true"
+                id="articleId"
+                formControlName="articleId"
+                (onChange)="Cheik();getPrixArticle($event,rowIndex);"
+                [options]="articles"
+                optionLabel="article"
+                filterBy="article"
+                appendTo="body"
+                [showClear]="true"></p-dropdown>
+            </td>
+            <td style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Title 2</span>
+                <p-dropdown
+                placeholder="Sélectionner un emballage " 
+                [filter]="true"
+                filterBy="libelle"
+                id="emballage"
+                formControlName="emballage"
+                (onChange)="SelectEmballage($event,rowIndex)"
+                [options]="monTableau1[rowIndex]"
+                optionLabel="libelle"
+                appendTo="body"
+                [showClear]="true" >
+                
+            </p-dropdown> 
+            
+        </td>
+        <td style="width:14%; min-width:10rem;">
+            <span class="p-column-title">quantite</span>
+            <p-inputNumber 
+            id="quantite"
+            (pointerout)="cheikQte(rowIndex);"
+            formControlName="quantite"
+            inputId="locale-user"
+            [minFractionDigits]="2">
+        </p-inputNumber>
+        
+    </td>
+    <td style="width:14%; min-width:8rem;">
+        <span class="p-column-title">prixUnit</span>
+        <p-inputNumber 
+        [disabled]="true" 
+        id="prixUnit"
+        formControlName="prixUnit"
+        inputId="locale-user" 
+        [minFractionDigits]="2"></p-inputNumber>
+        
+    </td>
+    <td style="width:14%; min-width:8rem;">
+        <span class="p-column-title">prixTotal</span>
+        <p-inputNumber
+        [disabled]="true"
+        id="prixTotal"
+        formControlName="prixTotal"
+        inputId="locale-user"
+        [minFractionDigits]="2"></p-inputNumber>
+        
+    </td>
+    
+    <td>
+        <div class="flex">
+            <button pButton
+            pRipple
+            icon="pi pi-trash"
+            (click)="Remove(rowIndex)"
+            class="p-button-rounded p-button-warning"></button>
+        </div>
+    </td>
+</tr>
+</ng-container>
+</ng-template>
+</p-table>
+<div class="p-fluid mt-2">
+    <div class="p-formgrid grid">
+        <div class="card button-container my-3">
+            <div>
+                <button pButton pRipple 
+                label="Annuler" icon="pi pi-times" 
+                (click)="reset()"
+                class="p-button-danger"></button>
+            </div>
+            <div  class="ml-3">
+                <button pButton pRipple 
+                label="Enregistrer(Sauvagarder)" 
+                icon="pi pi-check" 
+                (click)="save()"
+                class="p-button-primary"></button>
+            </div>
+            <div  class="ml-3">
+                <button pButton pRipple 
+                label="Enregistrer et Imprimer(Reçu)" icon="pi pi-print" 
+                class="p-button-success"></button>
+            </div>
+            <div  class="ml-3">
+                <button pButton pRipple 
+                label="Enregistrer et Imprimer(Draft)" icon="pi pi-print" 
+                class="p-button-warning"></button>
+            </div>
+        </div>
+        <div class="field col-3 mt-2 ml">
+            <label htmlFor="totalHt">Total</label>
+            <input  pInputText 
+            id="totalHt"
+            formControlName="totalHt"
+            type="text" />
+        </div>
+        <div class="field col-9 margin-top">
+        </div>
+        
+        <div class="field col-9 margin-top">
+        </div>
+        <div class="field col-3 margin-top">
+            <label htmlFor="montantAPayer">Montant à payer</label>
+            <input pInputText
+            id="montantAPayer" 
+            formControlName="montantAPayer"
+            type="text" />
+        </div>
+        <div class="field col-9 margin-top">
+        </div>
+        <div class="field col-9 margin-top">
+        </div>
+        <div class="field col-9 margin-top">
+        </div>
+        <div class="field col-3 margin-top">
+            <label htmlFor="resteAPayer">Reste à payer</label>
+            <input  
+            pInputText 
+            id="resteAPayer" 
+            formControlName="resteAPayer"
+            type="text" />
+        </div>
+    </div>
+</div>
+</form>
+</div>
+</div>
+</div>

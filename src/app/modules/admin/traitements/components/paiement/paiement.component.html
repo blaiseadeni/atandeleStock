@@ -1,0 +1,176 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <form [formGroup]="paiementForm">
+                <div class="card p-fluid">
+                    <h5>Destails de paiement  </h5>
+                    <div class="p-formgrid grid">
+                        <p-toast></p-toast>
+                        <div class="field col-3">
+                            <label htmlFor="email2">Numéro Facture</label>
+                            <p-dropdown
+                            placeholder="Sélectionner un numero " 
+                            [filter]="true"
+                            [options]="factures"
+                            (onChange)="getFacture($event)"
+                            optionLabel="numeroFacture"
+                            formControlName="numero"
+                            id="numero"
+                            filterBy="numero"
+                            [showClear]="true"></p-dropdown>
+                            <small
+                            class="p-error"
+                            *ngIf="
+                            paiementForm.controls['numero'].dirty &&
+                            paiementForm.hasError('required', 'numero')
+                            ">* Numéro facture obligatoire.</small>
+                        </div>
+                        <div class="field col-3">
+                            <label htmlFor="email2">Montant Total</label>
+                            <p-inputNumber 
+                            id="montant"
+                            formControlName="montant"
+                            inputId="locale-user" 
+                            [minFractionDigits]="2">
+                        </p-inputNumber>
+                    </div>
+                    <div class="field col-2">
+                        <label htmlFor="remise">Remise</label>
+                        <p-inputNumber 
+                        id="remise"
+                        formControlName="remise"
+                        inputId="locale-user" 
+                        [minFractionDigits]="2">
+                    </p-inputNumber>
+                </div>
+                <div class="field col-2">
+                    <label htmlFor="email2">Montant payer</label>
+                    <p-inputNumber 
+                    inputId="locale-user" 
+                    id="montantPayer"
+                    formControlName="montantPayer"
+                    [minFractionDigits]="2">
+                </p-inputNumber>
+            </div>
+            <div class="field col-2">
+                <label htmlFor="email2">Reste à payer</label>
+                <p-inputNumber
+                inputId="locale-user" 
+                id="resteApayer"
+                formControlName="resteApayer"
+                [minFractionDigits]="2">
+            </p-inputNumber>
+        </div>
+        <div class="field col-3">
+            <label htmlFor="email2">Montant verser</label>
+            <p-inputNumber 
+            inputId="locale-user" 
+            formControlName="montantVerser"
+            id="montantVerser"
+            [minFractionDigits]="2">
+        </p-inputNumber>
+        <small
+        class="p-error"
+        *ngIf="
+        paiementForm.controls['montantVerser'].dirty &&
+        paiementForm.hasError('required', 'montantVerser')
+        ">* Numéro facture obligatoire.</small>
+    </div>
+</div>
+</div>
+</form>
+<div class="card button-container my-3">
+    <div >
+        <button pButton pRipple 
+        label="Annuler" icon="pi pi-times" 
+        class="p-button-danger"></button>
+    </div>
+    <div class="ml-3">
+        <button pButton pRipple 
+        label="Enregistrer(Sauvagarder)" icon="pi pi-check" 
+        (click)="save()"
+        class="p-button-primary"></button>
+    </div>
+    <div class="ml-3">
+        <button pButton pRipple 
+        label="Enregistrer et Imprimer(Reçu)" icon="pi pi-print" 
+        class="p-button-success"></button>
+    </div>
+</div>
+
+
+
+<p-table #dt 
+[columns]="cols"
+responsiveLayout="scroll" 
+[globalFilterFields]="['name','country.name']" 
+[rows]="10" 
+[paginator]="true" 
+[rowsPerPageOptions]="[10,20,30]" 
+[showCurrentPageReport]="true"
+currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+selectionMode="multiple" 
+[rowHover]="true"
+[value]="paiements"
+dataKey="id">
+<ng-template pTemplate="caption">
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <h5 class="m-0">Liste des paiements</h5>
+        <span class="block mt-2 md:mt-0 p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+        </span>
+    </div>
+</ng-template>
+<ng-template pTemplate="header">
+    <tr>
+        <th>#</th>
+        <th pSortableColumn="title">Numéro Facture <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Date Paiement <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Montant <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+    </tr>
+</ng-template>
+<ng-template pTemplate="body" let-paiement let-rowIndex="rowIndex" >
+    <tr>
+        
+        <td style="width:14%; min-width:10rem;">
+            <span class="p-column-title">numero</span>
+            {{rowIndex+1}}
+            
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">numero</span>
+                {{paiement.numeroFacture}}
+                
+            </td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Date</span>
+                {{paiement.datePaiement | date:"dd/MM/yyyy"}}
+            </td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Montant</span>
+                {{paiement.montantPayer}}
+            </td>
+            <td style="width:14%; min-width:15rem;">
+                <span class="p-column-title">Creer par</span>
+                
+            </td>
+            
+            <!-- <td>
+                <div class="flex">
+                    <button pButton 
+                    pRipple icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-success mr-2" 
+                    ></button>
+                    <button pButton pRipple 
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-warning"></button>
+                </div>
+            </td> -->
+        </tr>
+    </ng-template>
+</p-table>
+</div>
+</div>
+</div>
+
