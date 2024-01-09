@@ -14,6 +14,7 @@ import { ErrorsComponent } from './pages/shared/errors/errors.component';
                 redirectTo: 'auth',
                 pathMatch: 'full'
             },
+            
             { path: 'admin', component: AdminComponent, loadChildren: () => import('./pages/layouts/admin/admin.module').then(m => m.AdminModule) },
             { path: 'auth', component: AuthComponent, loadChildren: () => import('./pages/layouts/auth/auth.module').then(m => m.AuthModule) },
             { path: 'client', component: ClientComponent, loadChildren: () => import('./pages/layouts/client/client.module').then(m => m.ClientModule) },
@@ -29,7 +30,7 @@ import { ErrorsComponent } from './pages/shared/errors/errors.component';
             useHash: true
         })
     ],
-exports: [RouterModule],
+    exports: [RouterModule],
     schemas: [
         CUSTOM_ELEMENTS_SCHEMA
     ],

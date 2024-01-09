@@ -10,6 +10,8 @@ import { PrixLocationService } from '../../services/prix-location.service';
 import { PortefeuilleService } from '../../../fichiers/services/portefeuille.service';
 import { EmballageByArticleService } from '../../services/emballage-by-article.service';
 import { StockService } from '../../services/stock.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-facture',
@@ -28,6 +30,7 @@ export class FactureComponent implements OnInit {
   modes: any = [];
   client: any;
   clientId: any;
+  factureId: any;
   status: any;
   monnaies: any = [];
   clients: any = [];
@@ -61,6 +64,10 @@ export class FactureComponent implements OnInit {
   reste: any;
   pu: any;
   pt: any;
+  utilisateurId: any;
+  locationId: any;
+  
+  
   
   constructor(
     private fb: FormBuilder,
@@ -73,42 +80,51 @@ export class FactureComponent implements OnInit {
     private prixService: PrixLocationService,
     private portefeuilleService:PortefeuilleService,
     private emballageByartService: EmballageByArticleService,
-    private stockService:StockService
+    private stockService: StockService,
+    private jwtHelper: JwtHelperService
     ) { }
     
     ngOnInit(): void {
       this.factureForm = new FormGroup({
-        numeroFacture: new FormControl(''),
+        // numeroFacture: new FormControl(''),
         dateFacture: new FormControl(''),
         cleintId: new FormControl(''),
         acheteur: new FormControl('',),
-        taux: new FormControl(0,),
+        // taux: new FormControl(0,),
         remise: new FormControl(0),
-        totalHt: new FormControl({value:'',disabled:true}, Validators.required),
-        resteAPayer: new FormControl({value:'',disabled:true}, Validators.required),
+        totalHt: new FormControl({value:0,disabled:true}),
+        resteAPayer: new FormControl({value:0,disabled:true}),
         montantPayer: new FormControl(0),
-        montantAPayer: new FormControl({value:'',disabled:true}, Validators.required),
-        monnaie: new FormControl('', Validators.required),
+        montantAPayer: new FormControl({value:0,disabled:true}),
+        // monnaie: new FormControl('', Validators.required),
         paiement: new FormControl(''),
         status: new FormControl(''),
         mode: new FormControl('', Validators.required),
         montantPortefeuille: new FormControl(0),
         factureDetails: this.fb.array([]),
       });
-      this.getAllClients();
-      this.getAllMonnaie();   
-      this.getAllArticles();
-      this.getAllEmballages();
+      
       
       this.modes = [
         {name:'CASH', value:'CASH'},
         {name:'CREDIT', value:'CREDIT'},
         {name:'PORTEFEUILLE', value:'PORTEFEUILLE'},
-      ]
+      ];
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      // console.log(this.utilisateurId);
+      
+      this.getAllClients();
+      this.getAllMonnaie();   
+      this.getAllArticles();
+      this.getAllEmballages();
     }
     
     getAllEmballages() {
-      this.emballageService.getAll()
+      this.emballageService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.emballages = response;
@@ -120,7 +136,7 @@ export class FactureComponent implements OnInit {
       });
     }
     getAllArticles() {
-      this.prixService.getAll()
+      this.prixService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.articles = response;
@@ -142,8 +158,9 @@ export class FactureComponent implements OnInit {
         }
       });
     }
+    
     getAllClients() {
-      this.clientService.getAll()
+      this.clientService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.clients = response;
@@ -288,9 +305,9 @@ export class FactureComponent implements OnInit {
       this.summarycalculation();
     }
     
-    get numeroFactureValue(){
-      return this.factureForm.get("numeroFacture");
-    }
+    // get numeroFactureValue(){
+    //   return this.factureForm.get("numeroFacture");
+    // }
     get locationIdValue(){
       return this.factureForm.get("locationId");
     }
@@ -303,9 +320,9 @@ export class FactureComponent implements OnInit {
     get acheteurValue(){
       return this.factureForm.get("acheteur");
     }
-    get tauxValue(){
-      return this.factureForm.get("taux");
-    }
+    // get tauxValue(){
+    //   return this.factureForm.get("taux");
+    // }
     get remiseValue(){
       return this.factureForm.get("remise");
     }
@@ -318,9 +335,9 @@ export class FactureComponent implements OnInit {
     get resteApayerValue(){
       return this.factureForm.get("resteApayer");
     }
-    get monnaieValue(){
-      return this.factureForm.get("monnaie");
-    }
+    // get monnaieValue(){
+    //   return this.factureForm.get("monnaie");
+    // }
     get paiementValue(){
       return this.factureForm.get("paiement");
     }
@@ -509,9 +526,12 @@ export class FactureComponent implements OnInit {
         this.add();
       }
     }
+    
+    
     add() {
       if (this.estClient === true) {
-        this.client = this.clientValue.value.id
+        this.client = this.clientValue.value.nom
+        this.clientId = this.clientValue.value.id
       } else {
         this.client = this.acheteurValue.value
       };
@@ -535,18 +555,21 @@ export class FactureComponent implements OnInit {
       })
       const request = {
         
-        numeroFacture: this.numeroFactureValue.value,
-        locationId: "273FB194-8142-4F64-9B09-08DBF01DCE18",
+        // numeroFacture: this.numeroFactureValue.value,
+        // locationId: "273FB194-8142-4F64-9B09-08DBF01DCE18",
+        locationId: this.locationId,
         client: this.client,
-        taux: this.tauxValue.value,
+        clientId: this.clientId,
+        // taux: this.tauxValue.value,
         remise: this.remiseValue.value,
         totalHt: this.totalHtValue.value,
         montantPayer: this.montantPayer,
         resteApayer: this.reste,
-        monnaie: this.monnaieValue.value.devise,
+        // monnaie: this.monnaieValue.value.devise,
         paiement: this.paiementValue.value.value,
         status: this.status,
         montantPortefeuille: this.montantPortefeuilleValue.value,
+        utilisateurId : this.utilisateurId,
         detailFactures:  detail,
         
       }
@@ -557,6 +580,8 @@ export class FactureComponent implements OnInit {
         next: (response) => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
           this.reset();
+          
+          // console.log(this.factureId);
         },
         complete: () => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
@@ -566,6 +591,171 @@ export class FactureComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
           this.reset();
         }
+      });
+    }
+    
+    
+    addPrintPOS() {
+      if (this.estClient === true) {
+        this.client = this.clientValue.value.nom
+        this.clientId = this.clientValue.value.id
+      } else {
+        this.client = this.acheteurValue.value
+      };
+      if (this.reste === 0) {
+        this.status = "PAYER";
+      } else {
+        this.status = "NON PAYER";
+        
+      };
+      const detail: any = [];
+      this.newRowsList.controls.forEach((v) => {
+        const items = {
+          articleId: v.value.articleId.articleId,
+          article: v.value.articleId.article,
+          emballage: v.value.emballage.libelle,
+          quantite: v.value.quantite,
+          prixUnit: v.value.articleId.prixVenteDetail,
+          prixTotal: v.value.articleId.prixVenteDetail * v.value.quantite
+        }
+        detail.push(items);
+      })
+      const request = {
+        
+        // numeroFacture: this.numeroFactureValue.value,
+        // locationId: "273FB194-8142-4F64-9B09-08DBF01DCE18",
+        locationId: this.locationId,
+        client: this.client,
+        clientId: this.clientId,
+        // taux: this.tauxValue.value,
+        remise: this.remiseValue.value,
+        totalHt: this.totalHtValue.value,
+        montantPayer: this.montantPayer,
+        resteApayer: this.reste,
+        // monnaie: this.monnaieValue.value.devise,
+        paiement: this.paiementValue.value.value,
+        status: this.status,
+        montantPortefeuille: this.montantPortefeuilleValue.value,
+        utilisateurId : this.utilisateurId,
+        detailFactures:  detail,
+        
+      }
+      const value = JSON.stringify(request)
+      // console.log(value);
+      this.service.add(value)
+      .subscribe({
+        next: (response) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+          this.factureId = response
+          this.PrintPOS(this.factureId.id)
+          // console.log(this.factureId);
+        },
+        complete: () => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+        },
+        error: (e) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+          this.reset();
+        }
+      });
+    }
+    
+    addPrintA4() {
+      if (this.estClient === true) {
+        this.client = this.clientValue.value.nom
+        this.clientId = this.clientValue.value.id
+      } else {
+        this.client = this.acheteurValue.value
+      };
+      if (this.reste === 0) {
+        this.status = "PAYER";
+      } else {
+        this.status = "NON PAYER";
+        
+      };
+      const detail: any = [];
+      this.newRowsList.controls.forEach((v) => {
+        const items = {
+          articleId: v.value.articleId.articleId,
+          article: v.value.articleId.article,
+          emballage: v.value.emballage.libelle,
+          quantite: v.value.quantite,
+          prixUnit: v.value.articleId.prixVenteDetail,
+          prixTotal: v.value.articleId.prixVenteDetail * v.value.quantite
+        }
+        detail.push(items);
+      })
+      const request = {
+        
+        // numeroFacture: this.numeroFactureValue.value,
+        // locationId: "273FB194-8142-4F64-9B09-08DBF01DCE18",
+        locationId: this.locationId,
+        client: this.client,
+        clientId: this.clientId,
+        // taux: this.tauxValue.value,
+        remise: this.remiseValue.value,
+        totalHt: this.totalHtValue.value,
+        montantPayer: this.montantPayer,
+        resteApayer: this.reste,
+        // monnaie: this.monnaieValue.value.devise,
+        paiement: this.paiementValue.value.value,
+        status: this.status,
+        montantPortefeuille: this.montantPortefeuilleValue.value,
+        utilisateurId : this.utilisateurId,
+        detailFactures:  detail,
+        
+      }
+      const value = JSON.stringify(request)
+      // console.log(value);
+      this.service.add(value)
+      .subscribe({
+        next: (response) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+          this.factureId = response
+          this.PrintA4(this.factureId.id)
+          // console.log(this.factureId);
+        },
+        complete: () => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+        },
+        error: (e) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+          this.reset();
+        }
+      });
+    }
+    
+    savePOS() {
+      if (this.paiementValue.value.name === "CASH" && this.reste != 0) {
+        this.messageService.add({ severity: 'error', summary: 'Averissement', detail: 'Vous avez choisi le mode de paiement cash, ce mode n\'autorise pas de reste ', life: 3000 });
+        this.factureForm.get("montantPayer")?.patchValue('');
+      } else {
+        this.addPrintPOS();
+      }
+    }
+    
+    PrintPOS(id: any) {
+      this.service.PrintPOS(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
+    }
+    
+    saveA4() {
+      this.addPrintA4();
+      // this.PrintA4(this.factureId.id)
+    }
+    
+    PrintA4(id: any) {
+      this.service.PrintA4(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
       });
     }
     
@@ -592,17 +782,18 @@ export class FactureComponent implements OnInit {
     
     reset() {
       this.factureForm = this.fb.group({
-        numeroFacture: [],
+        // numeroFacture: [],
         dateFacture: [],
         cleintId: [],
         acheteur: [],
-        taux: [],
-        remise: [],
-        totalHt: [],
-        resteAPayer: [],
-        montantPayer: [],
-        montantAPayer: [],
-        monnaie: [],
+        // taux: 1,
+        remise: 0,
+        totalHt: {value:0,disabled:true},
+        resteAPayer: {value:0,disabled:true},
+        montantPayer:0,
+        montantAPayer: {value:0,disabled:true},
+        montantPortefeuille:0,
+        // monnaie: [],
         paiement: [],
         status: [],
         mode: [],
@@ -610,6 +801,8 @@ export class FactureComponent implements OnInit {
       });
       
     }
+ 
+    
     
     private validateAllFields(formGroup: FormGroup) {
       Object.keys(formGroup.controls).forEach((field) => {

@@ -14,8 +14,8 @@ export class RoleService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Role');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Role/all/'+id);
   }
   
   add(entity: any){

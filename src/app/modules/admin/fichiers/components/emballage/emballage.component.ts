@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { EmballageService } from '../../services/emballage.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { A } from '@fullcalendar/core/internal-common';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-creation-mvm-comp',
@@ -20,10 +23,13 @@ export class EmballageComponent implements OnInit{
   
   emballages: any = [];
   emballage: any = {};
+  utilisateurId: any;
+  locationId: any;
   
   constructor(
     private service: EmballageService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ){}
     
     ngOnInit(): void {
@@ -31,15 +37,19 @@ export class EmballageComponent implements OnInit{
       this.emballageForm = new FormGroup({
         libelle : new FormControl('', Validators.required),
       })
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
       this.getAll();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.emballages = response;
-          console.log(this.emballages);
+          // console.log(this.emballages);
         },
         error: (errors) => {
           console.log(errors);
@@ -66,7 +76,7 @@ export class EmballageComponent implements OnInit{
     add() {
       const request = {
         libelle: this.libelleValue.value,
-        
+        utilisateurId: this.utilisateurId
       }
       this.service.add(request)
       .subscribe({
@@ -91,6 +101,7 @@ export class EmballageComponent implements OnInit{
     update() {
       const request = {
         libelle: this.libelleValue.value,
+        utilisateurId: this.utilisateurId
         
       }
       
@@ -185,6 +196,9 @@ export class EmballageComponent implements OnInit{
       return this.emballageForm.get("libelle");
     }
     
+    onGlobalFilter(table: Table, event: Event) {
+      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    }
     
     private validateAllFields(formGroup: FormGroup) {
       Object.keys(formGroup.controls).forEach((field) => {

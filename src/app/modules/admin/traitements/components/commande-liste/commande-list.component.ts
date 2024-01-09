@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommandeService } from '../../services/commande.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-controle-declaration',
@@ -20,9 +22,13 @@ export class CommandeListComponent implements OnInit {
   commande: any = {};
   commandes: any = [];
   
+  locationId: any = {};
+  
   constructor(
     private service: CommandeService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
+    
     ) { }
     
     ngOnInit(): void {
@@ -30,11 +36,16 @@ export class CommandeListComponent implements OnInit {
         value1: new FormControl('', Validators.required),
         value2: new FormControl('', Validators.required),
       })
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.locationId = decodeJWT.locationId;
+      
       this.getAll();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.commandes = response;
@@ -84,6 +95,15 @@ export class CommandeListComponent implements OnInit {
       });
     }
     
+    
+    PrintInvoice(id: any) {
+      this.service.GeneratePDF(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
+    }
+    
     hideSelect() {
       this.deleteDialog = false;
     }
@@ -98,6 +118,10 @@ export class CommandeListComponent implements OnInit {
     
     get value() {
       return this.controleForm.get("value");
+    }
+    
+    onGlobalFilter(table: Table, event: Event) {
+      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
     
     private validateAllFields(formGroup: FormGroup) {

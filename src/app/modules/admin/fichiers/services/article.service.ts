@@ -15,7 +15,7 @@ export class ArticleService {
   constructor(private http: HttpClient) { }
   
   getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Article');
+    return this.http.get(this.baseApiUrl + 'api/Article/all');
   }
   
   add(article: any){

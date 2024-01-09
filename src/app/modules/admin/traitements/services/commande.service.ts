@@ -14,8 +14,8 @@ export class CommandeService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Commande');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Commande/all/'+id);
   }
   
   add(entity: any){
@@ -33,5 +33,9 @@ export class CommandeService {
   
   delete(id?: string){
     return this.http.delete(this.baseApiUrl +'api/Commande/' + id);
+  }
+  
+  GeneratePDF(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/bc/' + id,{observe:'response',responseType:'blob'});
   }
 }

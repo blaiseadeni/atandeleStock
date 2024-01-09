@@ -14,8 +14,8 @@ export class UtilisateurService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Utilisateur');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Utilisateur/all/'+id);
   }
   
   add(entity: any){
@@ -35,8 +35,8 @@ export class UtilisateurService {
     return this.http.delete(this.baseApiUrl +'api/Utilisateur/' + id);
   }
   
-  activate(id?: string, user?: any) {
-    return this.http.put(this.baseApiUrl + 'api/Utilisateur/active/' + id, user);
+  activate(id?: string, entity?: any) {
+    return this.http.put(this.baseApiUrl + 'api/Login/active/' + id, entity);
   }
   
 }

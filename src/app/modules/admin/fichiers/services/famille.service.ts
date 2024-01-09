@@ -14,8 +14,8 @@ export class FamilleService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Famille');
+  getAll(id: any){
+    return this.http.get(this.baseApiUrl + 'api/Famille/all/'+ id);
   }
   
   add(famille: any){

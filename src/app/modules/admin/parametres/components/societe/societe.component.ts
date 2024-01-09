@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { SocieteService } from '../../services/societe.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 
 @Component({
@@ -24,10 +25,13 @@ export class SocieteComponent {
   societeDialog: boolean = false;
   societeForm: FormGroup;
   
+  utilisateurId: any;
+  
   constructor(
     private service: SocieteService,
     private fb: FormBuilder,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ) { }
     
     ngOnInit(): void {
@@ -42,6 +46,10 @@ export class SocieteComponent {
         monnaie: new FormControl('', Validators.required),
       });
       this.getAll();
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
     }
     
     getAll() {
@@ -82,7 +90,7 @@ export class SocieteComponent {
         rccm: this.rccmValue.value,
         tva: this.tvaValue.value,
         monnaie: this.monnaieValue.value,
-        
+        utilisateurId: this.utilisateurId
       }
       console.log(request);
       this.service.add(request)
@@ -115,6 +123,7 @@ export class SocieteComponent {
         rccm: this.rccmValue.value,
         tva: this.tvaValue.value,
         monnaie: this.monnaieValue.value,
+        utilisateurId: this.utilisateurId
         
       }
       

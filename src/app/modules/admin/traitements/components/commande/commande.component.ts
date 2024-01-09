@@ -7,6 +7,7 @@ import { MonnaieService } from '../../../fichiers/services/monnaie.service';
 import { ArticleService } from '../../../fichiers/services/article.service';
 import { EmballageService } from '../../../fichiers/services/emballage.service';
 import { EmballageByArticleService } from '../../services/emballage-by-article.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-calcul-penalite',
@@ -23,6 +24,8 @@ export class CommandeComponent implements OnInit {
   
   commande: any = {};
   commandes: any = [];
+  commandeId: any;
+  
   monnaies: any = [];
   fournisseurs: any = [];
   articles: any = [];
@@ -37,6 +40,8 @@ export class CommandeComponent implements OnInit {
   monTableau1: any = [];
   emballageArt: any = [];
   
+  utilisateurId: any;
+  locationId: any;
   
   constructor(
     private fb: FormBuilder,
@@ -46,24 +51,32 @@ export class CommandeComponent implements OnInit {
     private monnaieService: MonnaieService,
     private articleService: ArticleService,
     private emballageService: EmballageService,
-    private emballageByartService:EmballageByArticleService,
+    private emballageByartService: EmballageByArticleService,
+    private jwtHelper:JwtHelperService
     
     ) { }
     
     ngOnInit(): void {
       this.commandeForm = new FormGroup({
-        numeroCommande: new FormControl('', Validators.required),
+        // numeroCommande: new FormControl('', Validators.required),
         dateCommande: new FormControl('', Validators.required),
         dateLivraison: new FormControl('', Validators.required),
-        echeance: new FormControl('', Validators.required),
+        // echeance: new FormControl('', Validators.required),
         fournisseurId: new FormControl('', Validators.required),
-        observation: new FormControl(''),
-        concerne: new FormControl('', Validators.required),
+        // observation: new FormControl(''),
+        // concerne: new FormControl('', Validators.required),
         totalCommande: new FormControl({ value: 0, disabled: true}, Validators.required),
-        monnaieId: new FormControl('', Validators.required),
-        tauxDeChange: new FormControl('', Validators.required),
+        // monnaieId: new FormControl('', Validators.required),
+        // tauxDeChange: new FormControl('', Validators.required),
         detailCommandes: this.fb.array([]),
       });
+      
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.locationId = decodeJWT.locationId;
+      this.utilisateurId = decodeJWT.utilisateurId;
+      
       this.getAllFournisseurs();
       this.getAllMonnaie();   
       this.getAllArticles();
@@ -72,7 +85,7 @@ export class CommandeComponent implements OnInit {
     
     
     getAllEmballages() {
-      this.emballageService.getAll()
+      this.emballageService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.emballages = response;
@@ -105,7 +118,7 @@ export class CommandeComponent implements OnInit {
       });
     }
     getAllFournisseurs() {
-      this.fournisseurService.getAll()
+      this.fournisseurService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.fournisseurs = response;
@@ -131,7 +144,7 @@ export class CommandeComponent implements OnInit {
           
           this.monTableau.push(detail);
           this.monTableau.push(gros);
-          console.log(this.monTableau1[index] = this.monTableau);
+          this.monTableau1[index] = this.monTableau;
           
         },
         error: (errors) => {
@@ -206,6 +219,8 @@ export class CommandeComponent implements OnInit {
       }
       
     }
+    
+    
     add() {
       const detail: any = [];
       this.newRowsList.controls.forEach((v) => {
@@ -220,35 +235,96 @@ export class CommandeComponent implements OnInit {
         detail.push(items);
       })
       const request = {
-        numeroCommande : this.numeroCommandeValue.value,
+        // numeroCommande : this.numeroCommandeValue.value,
         dateCommande: this.dateCommandeValue.value,
         dateLivraison: this.dateLivraisonValue.value,
-        echeance: this.echeanceValue.value,
+        // echeance: this.echeanceValue.value,
         fournisseurId: this.fournisseurValue.value.id,
-        observation: this.observationValue.value,
-        concerne: this.concerneValue.value,
+        // observation: this.observationValue.value,
+        // concerne: this.concerneValue.value,
         totalCommande: this.totalCommandeValue.value,
-        monnaieId: this.monnaieIdValue.value.id,
-        tauxDeChange: this.tauxDeChangeValue.value,
+        // monnaieId: this.monnaieIdValue.value.id,
+        // tauxDeChange: this.tauxDeChangeValue.value,
+        utilisateurId: this.utilisateurId,
         detailCommandes:  detail,
         
       }
       const value = JSON.stringify(request)
-      this.service.add(value)
-      .subscribe({
-        next: (response) => {
-          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
-          this.reset();
-        },
-        complete: () => {
-          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
-          this.reset();
-        },
-        error: (e) => {
-          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
-          this.reset();
+      // console.log(value);
+      if (request.dateCommande.getTime() > request.dateLivraison.getTime()) {
+        this.messageService.add({ severity: 'error', summary: 'Info', detail: 'Dates invalides', life: 3000 });
+      } else {
+        this.service.add(value)
+        .subscribe({
+          next: (response) => {
+            this.reset();
+            this.commandeId = response;
+          },
+          complete: () => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+            this.reset();
+          },
+          error: (e) => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+            this.reset();
+          }
+        });
+      }
+      
+    }
+    
+    addPrint() {
+      const detail: any = [];
+      this.newRowsList.controls.forEach((v) => {
+        const items = {
+          articleId: v.value.articleId.id,
+          article: v.value.articleId.designation,
+          emballage: v.value.emballage.libelle,
+          quantite: v.value.quantite,
+          prixUnit: v.value.prixUnit,
+          prixTotal: v.value.quantite * v.value.prixUnit,
         }
-      });
+        detail.push(items);
+      })
+      const request = {
+        // numeroCommande : this.numeroCommandeValue.value,
+        dateCommande: this.dateCommandeValue.value,
+        dateLivraison: this.dateLivraisonValue.value,
+        // echeance: this.echeanceValue.value,
+        fournisseurId: this.fournisseurValue.value.id,
+        // observation: this.observationValue.value,
+        // concerne: this.concerneValue.value,
+        totalCommande: this.totalCommandeValue.value,
+        // monnaieId: this.monnaieIdValue.value.id,
+        // tauxDeChange: this.tauxDeChangeValue.value,
+        utilisateurId: this.utilisateurId,
+        detailCommandes:  detail,
+        
+      }
+      const value = JSON.stringify(request)
+      // console.log(value);
+      if (request.dateCommande.getTime() > request.dateLivraison.getTime() ) {
+        this.messageService.add({ severity: 'error', summary: 'Info', detail: 'Dates invalides', life: 3000 });
+        
+      } else {
+        this.service.add(value)
+        .subscribe({
+          next: (response) => {
+            this.reset();
+            this.commandeId = response;
+            this.Print(this.commandeId.id);
+          },
+          complete: () => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+            this.reset();
+          },
+          error: (e) => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+            this.reset();
+          }
+        });
+      }
+      
     }
     
     update() {
@@ -266,16 +342,17 @@ export class CommandeComponent implements OnInit {
       })
       
       const request = {
-        numeroCommande : this.numeroCommandeValue.value,
+        // numeroCommande : this.numeroCommandeValue.value,
         dateCommande: this.dateCommandeValue.value,
         dateLivraison: this.dateLivraisonValue.value,
-        echeance: this.echeanceValue.value,
+        // echeance: this.echeanceValue.value,
         fournisseurId: this.fournisseurValue.value.id,
-        observation: this.observationValue.value,
-        concerne: this.concerneValue.value,
+        // observation: this.observationValue.value,
+        // concerne: this.concerneValue.value,
         totalCommande: this.totalCommandeValue.value,
-        monnaieId: this.monnaieIdValue.value.id,
-        tauxDeChange: this.tauxDeChangeValue.value,
+        // monnaieId: this.monnaieIdValue.value.id,
+        // tauxDeChange: this.tauxDeChangeValue.value,
+        utilisateurId: this.utilisateurId,
         detailCommandes:  detail,
         
       }
@@ -319,49 +396,66 @@ export class CommandeComponent implements OnInit {
     
     reset() {
       this.commandeForm = this.fb.group({
-        numeroCommande:[],
+        // numeroCommande:[],
         dateCommande: [],
         dateLivraison: [],
-        echeance: [],
+        // echeance: [],
         fournisseurId: [],
         observation: [],
-        concerne: [],
-        totalCommande: [],
-        monnaieId: [],
-        tauxDeChange: [],
+        // concerne: [],
+        totalCommande: {value:0,disabled:true},
+        // monnaieId: [],
+        // tauxDeChange: [],
         detailCommandes: this.fb.array([]),
       });
       
     }
-    get numeroCommandeValue() {
-      return this.commandeForm.get("numeroCommande");
-    }
+    // get numeroCommandeValue() {
+    //   return this.commandeForm.get("numeroCommande");
+    // }
     get dateCommandeValue() {
       return this.commandeForm.get("dateCommande");
     }
     get dateLivraisonValue() {
       return this.commandeForm.get("dateLivraison");
     }
-    get echeanceValue() {
-      return this.commandeForm.get("echeance");
-    }
+    // get echeanceValue() {
+    //   return this.commandeForm.get("echeance");
+    // }
     get fournisseurValue() {
       return this.commandeForm.get("fournisseurId");
     }
-    get observationValue() {
-      return this.commandeForm.get("observation");
-    }
-    get concerneValue() {
-      return this.commandeForm.get("concerne");
-    }
+    // get observationValue() {
+    //   return this.commandeForm.get("observation");
+    // }
+    // get concerneValue() {
+    //   return this.commandeForm.get("concerne");
+    // }
     get totalCommandeValue() {
       return this.commandeForm.get("totalCommande");
     }
-    get monnaieIdValue() {
-      return this.commandeForm.get("monnaieId");
+    // get monnaieIdValue() {
+    //   return this.commandeForm.get("monnaieId");
+    // }
+    // get tauxDeChangeValue() {
+    //   return this.commandeForm.get("tauxDeChange");
+    // }
+    
+    savePrint() {
+      if (this.commandeForm.valid)
+      {
+        this.addPrint();
+      } else {
+        this.validateAllFields(this.commandeForm);
+      }
     }
-    get tauxDeChangeValue() {
-      return this.commandeForm.get("tauxDeChange");
+    
+    Print(id: any) {
+      this.service.GeneratePDF(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
     }
     
     private validateAllFields(formGroup: FormGroup) {

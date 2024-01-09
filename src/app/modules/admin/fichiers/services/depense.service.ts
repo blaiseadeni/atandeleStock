@@ -14,12 +14,16 @@ export class DepenseService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Depense');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Depense/all/'+id);
   }
   
   add(entity: any){
     return this.http.post(this.baseApiUrl + 'api/Depense', entity, this.headers);
+  }
+
+  verify(entity: any){
+    return this.http.post(this.baseApiUrl + 'api/Depense/verify', entity, this.headers);
   }
   
   get(id: string){

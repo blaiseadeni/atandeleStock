@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { DepenseService } from '../../services/depense.service';
 import { Table } from 'primeng/table';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 
 @Component({
@@ -18,6 +19,7 @@ export class DepenseComponent implements OnInit {
   rowsPerPageOptions = [5, 10, 20];
   deleteDialog: boolean = false;
   
+  
   depense: any = {};
   depenses: any = [];
   
@@ -25,10 +27,20 @@ export class DepenseComponent implements OnInit {
   depenseDialog: boolean = false;
   depenseForm: FormGroup;
   
+  verificationDialog: boolean = false;
+  verificationForm: FormGroup;
+  
+  utilisateurId: any;
+  locationId: any;
+  role: any;
+  
+  montant: any={};
+  
   constructor(
     private fb: FormBuilder,
     private service: DepenseService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ) { }
     
     ngOnInit(): void {
@@ -37,11 +49,22 @@ export class DepenseComponent implements OnInit {
         motif: new FormControl('', Validators.required),
         beneficiaire:  new FormControl('', Validators.required),
       });
+      this.verificationForm = new FormGroup({
+        date1: new FormControl('', Validators.required),
+        date2: new FormControl('', Validators.required),
+      });
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      this.role = decodeJWT.role;
+      
       this.getAll();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.depenses = response;
@@ -73,6 +96,7 @@ export class DepenseComponent implements OnInit {
         montant: this.montantValue.value,
         motif: this.motifValue.value,
         beneficiaire: this.beneficiaireValue.value,
+        utilisateurId:this.utilisateurId
       }
       console.log(request);
       this.service.add(request)
@@ -96,11 +120,49 @@ export class DepenseComponent implements OnInit {
     }
     
     
+    verify() {
+      const request = {
+        date1: this.date1Value.value,
+        date2: this.date2Value.value,
+        locationId: this.locationId,
+      }
+      // console.log(request);
+      const value = JSON.stringify(request)
+      console.log(value);
+      if (request.date1.getTime() > request.date2.getTime()) {
+        this.messageService.add({ severity: 'error', summary: 'Info', detail: 'Dates invalides', life: 3000 });
+      } else {
+        this.service.verify(value)
+        .subscribe({
+          next: (response) => {
+            this.montant = response;
+            // console.log(this.montant = response);
+            // alert(this.montant.montant)
+            
+          },
+          error: (e) => {
+            console.log(e);
+          }
+        });
+      }
+      
+    }
+    
+    getAmount() {
+      if (this.verificationForm.valid) {
+        
+        this.verify();
+      } else {
+        this.validateAllFields(this.verificationForm)
+      }
+    }
+    
     update() {
       const request = {
         montant: this.montantValue.value,
         motif: this.motifValue.value,
         beneficiaire: this.beneficiaireValue.value,
+        utilisateurId:this.utilisateurId
         
       }
       
@@ -184,6 +246,14 @@ export class DepenseComponent implements OnInit {
       this.depense = {};
     }
     
+    resetAmount() {
+      this.verificationForm = this.fb.group({
+        date1: [],
+        date2: [],
+      });
+      this.montant = {};
+    }
+    
     hideSelect() {
       this.deleteDialog = false;
       this.reset();
@@ -197,6 +267,14 @@ export class DepenseComponent implements OnInit {
       this.depenseDialog = false;
       this.depense = {};
     }
+    ouvrirVDialog() {
+      this.verificationDialog = true;
+    }
+    
+    fermerVDialog() {
+      this.verificationDialog = false;
+      this.resetAmount();
+    }
     
     
     get montantValue() {
@@ -209,6 +287,13 @@ export class DepenseComponent implements OnInit {
     
     get beneficiaireValue(){
       return this.depenseForm.get("beneficiaire")
+    }
+    
+    get date1Value(){
+      return this.verificationForm.get("date1")
+    }
+    get date2Value(){
+      return this.verificationForm.get("date2")
     }
     
     onGlobalFilter(table: Table, event: Event) {

@@ -14,8 +14,8 @@ export class PortefeuilleService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Portefeuille');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Portefeuille/all/'+id);
   }
   
   add(entity: any){

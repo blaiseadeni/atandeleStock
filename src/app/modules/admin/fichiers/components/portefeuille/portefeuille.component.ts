@@ -4,6 +4,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PortefeuilleService } from '../../services/portefeuille.service';
 import { MonnaieService } from '../../services/monnaie.service';
 import { SignaletiqueService } from '../../services/signaletique.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-portefeuille',
@@ -23,29 +25,40 @@ export class PortefeuilleComponent {
   clients: any = [];
   
   portefeuilleDialog: boolean = false;
-  portefeuilleForm 
+  portefeuilleForm: FormGroup;
+  
+  utilisateurId: any;
+  locationId: any;
+  role: any;
   
   constructor(
     private messageService: MessageService,
     private service: PortefeuilleService,
     private monaieservice: MonnaieService,
-    private clientservice: SignaletiqueService
+    private clientservice: SignaletiqueService,
+    private jwtHelper: JwtHelperService
     ) {}
     
     
     ngOnInit(): void {
       this.portefeuilleForm = new FormGroup({
         clientId: new FormControl('', Validators.required),
-        monnaieId: new FormControl('', Validators.required),
         montant: new FormControl('', Validators.required),
       });
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      this.role = decodeJWT.role;
+      
       this.getAll();
       this.getAllClients();
       this.getAllMonnais();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.portefeuilles = response; 
@@ -56,8 +69,9 @@ export class PortefeuilleComponent {
         }
       });
     }
+    
     getAllClients() {
-      this.clientservice.getAll()
+      this.clientservice.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.clients = response; 
@@ -100,9 +114,10 @@ export class PortefeuilleComponent {
     add() {
       const request = {
         clientId: this.clientIdValue.value.id,
-        monnaieId: this.monnaieIdValue.value.id,
+        // monnaieId: this.monnaieIdValue.value.id,
         montant: this.montantValue.value,
-        
+        utilisateurId:this.utilisateurId,
+        locationId:this.locationId
       }
       this.service.add(request)
       .subscribe({
@@ -127,8 +142,10 @@ export class PortefeuilleComponent {
     update() {
       const request = {
         clientId: this.clientIdValue.value.id,
-        monnaieId: this.monnaieIdValue.value.id,
+        // monnaieId: this.monnaieIdValue.value.id,
         montant: this.montantValue.value,
+        utilisateurId: this.utilisateurId,
+        locationId:this.locationId
         
       }
       
@@ -178,7 +195,7 @@ export class PortefeuilleComponent {
         next: (response) => {
           this.portefeuille = response;
           this.portefeuilleForm.get("clientId")?.patchValue(this.portefeuille.clientId);
-          this.portefeuilleForm.get("monnaieId")?.patchValue(this.portefeuille.monnaieId);
+          // this.portefeuilleForm.get("monnaieId")?.patchValue(this.portefeuille.monnaieId);
           this.portefeuilleForm.get("montant")?.patchValue(this.portefeuille.montant);
           this.portefeuilleDialog = true;
         },
@@ -190,7 +207,7 @@ export class PortefeuilleComponent {
     
     reset() {
       this.portefeuilleForm.get("clientId")?.patchValue('');
-      this.portefeuilleForm.get("monnaieId")?.patchValue('');
+      // this.portefeuilleForm.get("monnaieId")?.patchValue('');
       this.portefeuilleForm.get("addresse")?.patchValue('');
       this.portefeuille = {};
     }
@@ -226,12 +243,16 @@ export class PortefeuilleComponent {
       return this.portefeuilleForm.get("clientId");
     }
     
-    get monnaieIdValue(){
-      return this.portefeuilleForm.get("monnaieId");
-    }
+    // get monnaieIdValue(){
+    //   return this.portefeuilleForm.get("monnaieId");
+    // }
     
     get montantValue(){
       return this.portefeuilleForm.get("montant");
+    }
+    
+    onGlobalFilter(table: Table, event: Event) {
+      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
     
     private validateAllFields(formGroup: FormGroup) {

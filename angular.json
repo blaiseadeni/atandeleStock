@@ -7,31 +7,31 @@
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
-                  "style": "scss",
-                  "skipTests": true
+                    "style": "scss",
+                    "skipTests": true
                 },
                 "@schematics/angular:class": {
-                  "skipTests": true
+                    "skipTests": true
                 },
                 "@schematics/angular:directive": {
-                  "skipTests": true
+                    "skipTests": true
                 },
                 "@schematics/angular:guard": {
-                  "skipTests": true
+                    "skipTests": true
                 },
                 "@schematics/angular:interceptor": {
-                  "skipTests": true
+                    "skipTests": true
                 },
                 "@schematics/angular:pipe": {
-                  "skipTests": true
+                    "skipTests": true
                 },
                 "@schematics/angular:service": {
-                  "skipTests": true
+                    "skipTests": true
                 },
                 "@schematics/angular:application": {
-                  "strict": true
+                    "strict": true
                 }
-              },
+            },
             "root": "",
             "sourceRoot": "src",
             "prefix": "app",
@@ -51,7 +51,12 @@
                         "assets": [
                             "src/assets",
                             "src/web.config",
-                            "src/favicon.ico"
+                            "src/favicon.ico",
+                            {
+                                "glob": "**/*",
+                                "input": "node_modules/ngx-extended-pdf-viewer/assets/",
+                                "output": "/assets/"
+                            }
                         ],
                         "styles": [
                             "src/styles.scss"
@@ -131,9 +136,14 @@
                         ],
                         "scripts": [],
                         "assets": [
-                            "src/assets", 
+                            "src/assets",
                             "src/favicon.ico",
-                            "src/web.config"
+                            "src/web.config",
+                            {
+                                "glob": "**/*",
+                                "input": "node_modules/ngx-extended-pdf-viewer/assets/",
+                                "output": "/assets/"
+                            }
                         ]
                     }
                 },
@@ -153,6 +163,6 @@
         }
     },
     "cli": {
-      "analytics": false
+        "analytics": false
     }
 }

@@ -15,7 +15,7 @@
             <p-table #dt 
             [columns]="cols"
             responsiveLayout="scroll" 
-            [globalFilterFields]="['name','country.name']" 
+            [globalFilterFields]="['societe','designation']" 
             [rows]="10" 
             [paginator]="true" 
             [rowsPerPageOptions]="[10,20,30]" 
@@ -47,7 +47,7 @@
                     <th pSortableColumn="title">Numéro de facture</th>
                     <th pSortableColumn="title">Numéro de livraison </th>
                     <th pSortableColumn="title">Adresse </th>
-                    <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+                    <!-- <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th> -->
                     <th></th>
                 </tr>
             </ng-template>
@@ -101,9 +101,9 @@
                         <span class="p-column-title">Adresse </span>
                         {{location.addresse}}
                     </td>
-                    <td style="width:10%; min-width:15rem;">
+                    <!-- <td style="width:10%; min-width:15rem;">
                         <span class="p-column-title">Créer par </span>
-                    </td>
+                    </td> -->
                     
                     <td>
                         <div class="flex">
@@ -139,6 +139,7 @@ header="Details Location"
                 <p-dropdown 
                 formControlName="societeId" 
                 [options]="societes" 
+                [autoDisplayFirst]="false"
                 optionLabel="denomination"
                 [filter]="true"
                 filterBy="denomination"
@@ -158,7 +159,6 @@ header="Details Location"
             <input type="text"
             pInputText 
             id="designation"
-            autofocus
             formControlName="designation"
             placeholder="saisir la designation"/>
             <small
@@ -176,7 +176,6 @@ header="Details Location"
             formControlName="dateCreation"
             id="dateCreation"
             required
-            autofocus
             placeholder="sélectionner une date"
             formControlName="dateCreation">
         </p-calendar>
@@ -194,7 +193,6 @@ header="Details Location"
         appendTo="body"
         id="dateCloture"
         formControlName="dateCloture"
-        autofocus
         placeholder="sélectionner une date"
         formControlName="dateCloture">
     </p-calendar>
@@ -206,7 +204,6 @@ header="Details Location"
     pInputText 
     id="numeroAchat"
     formControlName="numeroAchat"
-    autofocus
     placeholder="saisir le numéro d'achat"/>
     <small
     class="p-error"
@@ -221,7 +218,6 @@ header="Details Location"
     pInputText 
     id="numeroCommande"
     formControlName="numeroCommande"
-    autofocus
     placeholder="saisir le numéro de commande"/>
     <small
     class="p-error"
@@ -236,7 +232,6 @@ header="Details Location"
     pInputText 
     id="numeroLivraison"
     formControlName="numeroLivraison"
-    autofocus
     placeholder="saisir le numéro de livraison"/>
     <small
     class="p-error"
@@ -251,7 +246,6 @@ header="Details Location"
     pInputText 
     id="numeroFacture"
     formControlName="numeroFacture"
-    autofocus
     placeholder="saisir le numéro de facture"/>
     <small
     class="p-error"
@@ -266,7 +260,6 @@ header="Details Location"
     pInputText 
     id="addresse"
     formControlName="addresse"
-    autofocus
     placeholder="saisir l'addresse"/>
     <small
     class="p-error"

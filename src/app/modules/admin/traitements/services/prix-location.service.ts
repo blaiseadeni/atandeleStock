@@ -14,8 +14,8 @@ export class PrixLocationService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/PrixArticleLocation');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/PrixArticleLocation/all/'+id);
   }
   
   add(entity: any){

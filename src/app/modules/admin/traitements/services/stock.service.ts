@@ -14,8 +14,8 @@ export class StockService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Stock');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Stock/all/'+id);
   }
   
   add(entity: any){

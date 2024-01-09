@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class AchatService {
- baseApiUrl: string = environment.baseApiUrl;
+  baseApiUrl: string = environment.baseApiUrl;
   
   private headers = {
     headers: new HttpHeaders().set('Content-Type', 'application/json')
@@ -14,8 +14,8 @@ export class AchatService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Achat');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Achat/all/'+id);
   }
   
   add(entity: any){
@@ -33,5 +33,9 @@ export class AchatService {
   
   delete(id?: string){
     return this.http.delete(this.baseApiUrl +'api/Achat/' + id);
+  }
+  
+  GeneratePDF(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/ba/' + id,{observe:'response',responseType:'blob'});
   }
 }

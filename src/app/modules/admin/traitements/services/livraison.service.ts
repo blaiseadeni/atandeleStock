@@ -14,8 +14,8 @@ export class LivraisonService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Livraison');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Livraison/all/'+id);
   }
   
   add(entity: any){
@@ -33,5 +33,9 @@ export class LivraisonService {
   
   delete(id?: string){
     return this.http.delete(this.baseApiUrl +'api/Livraison/' + id);
+  }
+  
+  GeneratePDF(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/bl/' + id,{observe:'response',responseType:'blob'});
   }
 }

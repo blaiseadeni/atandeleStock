@@ -8,6 +8,8 @@ import { LocationService } from '../../../fichiers/services/location.service';
 import { EmballageService } from '../../../fichiers/services/emballage.service';
 import { ArticleService } from '../../../fichiers/services/article.service';
 import { EmballageByArticleService } from '../../services/emballage-by-article.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { C } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'app-controle-declare-tp',
@@ -38,6 +40,10 @@ export class AchatComponent implements OnInit {
   monTableau: any = [];
   monTableau1: any = [];
   
+  utilisateurId: any;
+  locationId: any;
+  achatId: any;
+  
   constructor(
     private fb: FormBuilder,
     private service: AchatService,
@@ -47,7 +53,8 @@ export class AchatComponent implements OnInit {
     private locationsService: LocationService,
     private emballageService: EmballageService,
     private articleService: ArticleService,
-    private emballageByartService:EmballageByArticleService,
+    private emballageByartService: EmballageByArticleService,
+    private jwtHelper:JwtHelperService
     
     ) { }
     
@@ -55,19 +62,26 @@ export class AchatComponent implements OnInit {
       this.achatForm = new FormGroup({
         dateAchat: new FormControl('', Validators.required),
         numeroFacture: new FormControl('', Validators.required),
-        monnaieId: new FormControl('', Validators.required),
-        locationId: new FormControl('', Validators.required),
+        // monnaieId: new FormControl('', Validators.required),
+        // locationId: new FormControl('', Validators.required),
         fournisseurId: new FormControl('', Validators.required),
-        tauxAchat: new FormControl('', Validators.required),
+        // tauxAchat: new FormControl('', Validators.required),
         montantTotal: new FormControl({value:0,disabled:true}, Validators.required),
-        numeroAchat: new FormControl('', Validators.required),
+        // numeroAchat: new FormControl('', Validators.required),
         detailAchats: this.fb.array([]),
       });
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      
       this.getAllArticles();
       this.getAllEmballages();
       this.getAllFournisseurs();
       this.getAllLocations();
       this.getAllMonnaie();
+      
+      
     }
     
     
@@ -98,7 +112,7 @@ export class AchatComponent implements OnInit {
     
     
     getAllEmballages() {
-      this.emballageService.getAll()
+      this.emballageService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.emballages = response;
@@ -146,7 +160,7 @@ export class AchatComponent implements OnInit {
       });
     }
     getAllFournisseurs() {
-      this.fournisseurService.getAll()
+      this.fournisseurService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.fournisseurs = response;
@@ -166,14 +180,14 @@ export class AchatComponent implements OnInit {
           // console.log(this.emballageArt);
           const detail = 
           { libelle: this.emballageArt.emballageDetail, }
-      
+          
           const gros = 
           {  libelle: this.emballageArt.emballageGros, };
-      
+          
           this.monTableau.push(detail);
           this.monTableau.push(gros);
           console.log(this.monTableau1[index] = this.monTableau);
-      
+          
         },
         error: (errors) => {
           console.log(errors);
@@ -232,12 +246,13 @@ export class AchatComponent implements OnInit {
       const request = {
         dateAchat: this.dateAchatValue.value,
         numeroFacture: this.numeroFactureValue.value,
-        monnaieId: this.monnaieIdValue.value.id,
-        locationId: this.locationIdValue.value.id,
+        // monnaieId: this.monnaieIdValue.value.id,
+        locationId: this.locationId,
         fournisseurId: this.fournisseurIdValue.value.id,
-        tauxAchat: this.tauxAchatValue.value,
+        // tauxAchat: this.tauxAchatValue.value,
         montantTotal: this.montantTotalValue.value,
-        numeroAchat: this.numeroAchatValue.value,
+        // numeroAchat: this.numeroAchatValue.value,
+        utilisateurId:this.utilisateurId,
         detailAchats:  detail,
         
       }
@@ -247,6 +262,8 @@ export class AchatComponent implements OnInit {
         next: (response) => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
           this.reset();
+          //this.achatId = response;
+          // console.log(this.achatId);
         },
         complete: () => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
@@ -259,16 +276,80 @@ export class AchatComponent implements OnInit {
       });
     }
     
+    addPrint() {
+      const detail: any = [];
+      this.newRowsList.controls.forEach((v) => {
+        const items = {
+          articleId: v.value.articleId.id,
+          article: v.value.articleId.designation,
+          emballage: v.value.emballage.libelle,
+          quantite: v.value.quantite,
+          prixUnit: v.value.prixUnit,
+          prixTotal: v.value.quantite * v.value.prixUnit,
+        }
+        detail.push(items);
+      })
+      const request = {
+        dateAchat: this.dateAchatValue.value,
+        numeroFacture: this.numeroFactureValue.value,
+        // monnaieId: this.monnaieIdValue.value.id,
+        locationId: this.locationId,
+        fournisseurId: this.fournisseurIdValue.value.id,
+        // tauxAchat: this.tauxAchatValue.value,
+        montantTotal: this.montantTotalValue.value,
+        // numeroAchat: this.numeroAchatValue.value,
+        utilisateurId:this.utilisateurId,
+        detailAchats:  detail,
+        
+      }
+      const value = JSON.stringify(request)
+      this.service.add(value)
+      .subscribe({
+        next: (response) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+          this.achatId = response;
+          // console.log(this.achatId);
+          this.PrintBA(this.achatId.id)
+        },
+        complete: () => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+        },
+        error: (e) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+          this.reset();
+        }
+      });
+    }
+    
+    savePrint() {
+      if (this.achatForm.valid) {
+        this.addPrint();
+        
+      } else {
+        this.validateAllFields(this.achatForm);
+      }
+    }
+    
+    PrintBA(id: any) {
+      this.service.GeneratePDF(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
+    }
+    
     reset() {
       this.achatForm = this.fb.group({
         dateAchat: [],
         numeroFacture: [],
-        monnaieId: [],
+        // monnaieId: [],
         locationId: [],
         fournisseurId: [],
-        tauxAchat: [],
-        montantTotal: [],
-        numeroAchat: [],
+        // tauxAchat: [],
+        montantTotal: {value:0,disabled:true},
+        // numeroAchat: [],
         detailAchats: this.fb.array([]),
       });
     }
@@ -301,24 +382,24 @@ export class AchatComponent implements OnInit {
     get numeroFactureValue() {
       return this.achatForm.get("numeroFacture")
     }
-    get monnaieIdValue() {
-      return this.achatForm.get("monnaieId")
-    }
-    get locationIdValue() {
-      return this.achatForm.get("locationId")
-    }
+    // get monnaieIdValue() {
+    //   return this.achatForm.get("monnaieId")
+    // }
+    // get locationIdValue() {
+    //   return this.achatForm.get("locationId")
+    // }
     get fournisseurIdValue() {
       return this.achatForm.get("fournisseurId")
     }
-    get tauxAchatValue() {
-      return this.achatForm.get("tauxAchat")
-    }
+    // get tauxAchatValue() {
+    //   return this.achatForm.get("tauxAchat")
+    // }
     get montantTotalValue() {
       return this.achatForm.get("montantTotal")
     }
-    get numeroAchatValue() {
-      return this.achatForm.get("numeroAchat")
-    }
+    // get numeroAchatValue() {
+    //   return this.achatForm.get("numeroAchat")
+    // }
     
     private validateAllFields(formGroup: FormGroup) {
       Object.keys(formGroup.controls).forEach((field) => {

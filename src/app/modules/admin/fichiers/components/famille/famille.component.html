@@ -6,7 +6,7 @@
                     <div class="my-2">
                         <button pButton pRipple 
                         label="Ajouter" icon="pi pi-plus" 
-                        class="p-button-primary" 
+                        class="p-button-primary " 
                         (click)="ouvrirDialog()"></button>
                     </div>
                 </ng-template>
@@ -15,7 +15,7 @@
             <p-table #dt 
             [columns]="cols"
             responsiveLayout="scroll" 
-            [globalFilterFields]="['name','country.name']" 
+            [globalFilterFields]="['libelle',]" 
             [rows]="10" 
             [paginator]="true" 
             [rowsPerPageOptions]="[10,20,30]" 
@@ -45,7 +45,7 @@
             </ng-template>
             <ng-template pTemplate="body" let-famille let-rowIndex="rowIndex">
                 <tr>
-                    <td style="width:7%; min-width:5rem;">
+                    <td style="width:25%; min-width:5rem;">
                         <span class="p-column-title">#</span>
                         {{rowIndex + 1}}
                     </td>
@@ -59,7 +59,7 @@
                     </td>
                     <td style="width:25%; min-width:10rem;">
                         <span class="p-column-title">Créer par</span>
-                        
+                        {{famille.utilisateur | uppercase}}
                     </td>
                     
                     <td>
@@ -93,7 +93,6 @@ header="Details Famille"
             <label for="libelle">Libellé</label>
             <input type="text"
             pInputText 
-            autofocus
             id="libelle"
             formControlName="libelle"
             placeholder="saisir le libellé"/>

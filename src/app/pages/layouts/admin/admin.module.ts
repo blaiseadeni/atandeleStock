@@ -12,6 +12,7 @@ import { AppProfileComponent } from './profile/app.profile.component';
 import { AppTopBarComponent } from './topbar/app.topbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PrimengModule } from 'src/app/_primeng/primeng.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { PrimengModule } from 'src/app/_primeng/primeng.module';
   imports: [
     CommonModule,
     PrimengModule,
-    AdminRoutingModule
+    AdminRoutingModule,
+    ReactiveFormsModule
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

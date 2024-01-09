@@ -2,97 +2,248 @@
     <div class="col-12">
         <div class="card px-6 py-6">
             <div class="card p-fluid">
-                <h5>Inventaire </h5>
-                <div class="p-formgrid grid">
-                    
-                    <div class="field col-2 ml">
-                        <label htmlFor="email2">De (Date 1)</label>
-                        <p-calendar  [showIcon]="true" inputId="icon"></p-calendar>
-                    </div>
-                    
-                    <div class="field col-2">
-                        <label htmlFor="email2">A (Date 2)</label>
-                        <p-calendar
-                        [showIcon]="true" 
-                        inputId="icon">
-                    </p-calendar>
-                </div>
-                
-                <div class="margin-tp">
-                    <button pButton pRipple 
-                    label="Imprimer (F.I)" icon="pi pi-print" 
-                    class="p-button-warning" ></button>
-                </div>
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                        <div class="my-2">
+                            <button pButton pRipple 
+                            label="Nouvel inventaire" icon="pi pi-plus" 
+                            class="p-button-primary" 
+                            (click)="ouvrirDialog()"></button>
+                        </div>
+                    </ng-template>
+                </p-toolbar>
             </div>
-        </div>
+            
+            
+            <p-table #dt 
+            [columns]="cols"
+            responsiveLayout="scroll" 
+            [globalFilterFields]="['name','country.name']" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowsPerPageOptions]="[10,20,30]" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+            selectionMode="multiple" 
+            [value]="inventaires"
+            [rowHover]="true"
+            dataKey="id">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                    <h5 class="m-0">Gestion d'inventaire</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="tile">#<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Article <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Quantité logique<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Quantité physique<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Ecart<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer le<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Créer par<p-sortIcon field="title"></p-sortIcon></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-inventaire let-rowIndex="rowIndex">
+                <tr>
+                    
+                    <td style="width:14%; min-width:5rem;">
+                        <span class="p-column-title">#</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:14%; min-width:20rem;">
+                        <span class="p-column-title">Article</span>
+                        {{inventaire.articleId}}
+                    </td>
+                    <td style="width:14%; min-width:12rem; text-align: center;">
+                        <span class="p-column-title">Quantité logique</span>
+                        {{inventaire.quantiteLogique}}
+                    </td>
+                    <td style="width:14%; min-width:12rem; text-align: center;">
+                        <span class="p-column-title">Quantité physique</span>
+                        {{inventaire.quantitePhysique}}
+                    </td>
+                    <td style="width:14%; min-width:5rem; text-align: center; ">
+                        <span class="p-column-title">Ecart</span>
+                        {{inventaire.ecart}}
+                    </td>
+                    <td style="width:14%; min-width:10rem;">
+                        <span class="p-column-title">Créer le</span>
+                        {{inventaire.date | date:"dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:14%; min-width:15rem;">
+                        <span class="p-column-title">Créer par</span>
+                        {{inventaire.utilisateurId}}
+                    </td>
+                    
+                    
+                    
+                    <td>
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2" 
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+</div>
+
+<p-dialog [(visible)]="inventaireDialog" 
+[style]="{width: '500px'}"
+header="Details Inventaire" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="inventaireForm">
+        <div class="field">
+            <label for="articleId">Article</label>
+            <p-dropdown 
+            formControlName="articleId" 
+            [options]="articles" 
+            optionLabel="designation"
+            [autoDisplayFirst]="false"
+            (onChange)="getInventaire($event); calculation()"
+            [filter]="true"
+            filterBy="designation"
+            id="articleId"
+            appendTo="body">
+        </p-dropdown>
+        <small
+        class="p-error"
+        *ngIf="
+        inventaireForm.controls['articleId'].dirty &&
+        inventaireForm.hasError('required', 'articleId')"
+        >* article obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="quantiteLogique">Quantité logique</label>
+        <p-inputNumber type="text"
+        id="quantiteLogique"
+        formControlName="quantiteLogique"
+        placeholder="saisir la quantite logique"></p-inputNumber>
+        <small
+        class="p-error"
+        *ngIf="
+        inventaireForm.controls['quantiteLogique'].dirty &&
+        inventaireForm.hasError('required', 'quantiteLogique')
+        ">* quantite logique obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="quantitePhysique">Quantité physique</label>
+        <p-inputNumber type="text"
+        id="quantitePhysique"
+        formControlName="quantitePhysique"
+        (onInput)="calculation()"
+        placeholder="saisir la quantite physique"></p-inputNumber>
+        <small
+        class="p-error"
+        *ngIf="
+        inventaireForm.controls['quantitePhysique'].dirty &&
+        inventaireForm.hasError('required', 'quantitePhysique')
+        ">* quantite physique obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="ecart">Ecart</label>
+        <p-inputNumber type="text"
+        id="ecart"
+        formControlName="ecart"
+        ></p-inputNumber>
+        <small
+        class="p-error"
+        *ngIf="
+        inventaireForm.controls['ecart'].dirty &&
+        inventaireForm.hasError('required', 'ecart')
+        ">* ecart obligatoire.</small>
+    </div>
+    
+</form>   
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
         
+        <button pButton pRipple 
+        label="Enregistrer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="printInventaireDialog" 
+[style]="{width: '500px'}"
+header="Details Impression" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="printInventaireForm">
         
-        <p-table #dt 
-        [columns]="cols"
-        responsiveLayout="scroll" 
-        [globalFilterFields]="['name','country.name']" 
-        [rows]="10" 
-        [paginator]="true" 
-        [rowsPerPageOptions]="[10,20,30]" 
-        [showCurrentPageReport]="true"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
-        selectionMode="multiple" 
-        [rowHover]="true"
-        dataKey="id">
-        <ng-template pTemplate="caption">
-            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                <h5 class="m-0">Gestion d'inventaire</h5>
-                <span class="block mt-2 md:mt-0 p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
-                </span>
-            </div>
-        </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="tile">#<p-sortIcon field="title"></p-sortIcon></th>
-                <th pSortableColumn="title">Article <p-sortIcon field="title"></p-sortIcon></th>
-                <th pSortableColumn="title">Quantité physique<p-sortIcon field="title"></p-sortIcon></th>
-                <th pSortableColumn="title">Quantité logique<p-sortIcon field="title"></p-sortIcon></th>
-                <th pSortableColumn="title">Ecart<p-sortIcon field="title"></p-sortIcon></th>
-                <th></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-product>
-            <tr>
-                
-                <td style="width:14%; min-width:10rem;">
-                    <span class="p-column-title">#</span>
-                    
-                </td>
-                <td style="width:14%; min-width:10rem;">
-                    <span class="p-column-title">Libellé</span>
-                    
-                </td>
-                <td style="width:14%; min-width:10rem;">
-                    <span class="p-column-title">Créer par</span>
-                    
-                </td>
-                <td style="width:14%; min-width:10rem;">
-                    <span class="p-column-title">Créer le</span>
-                    
-                </td>
-                
-                
-                <td>
-                    <div class="flex">
-                        <button pButton 
-                        pRipple icon="pi pi-pencil" 
-                        class="p-button-rounded p-button-success mr-2" 
-                        ></button>
-                        <button pButton pRipple 
-                        icon="pi pi-trash"
-                        class="p-button-rounded p-button-warning"></button>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+        <div class="grid p-fluid mt-3">
+            <div class="field col-12 md:col-6">
+                <label for="date1">Date 1</label>
+                <p-calendar
+                [showIcon]="true" 
+                formControlName="date1"
+                id="date1"
+                dateFormat="yy-mm-dd"
+                placeholder="Sélectionner la date 1"
+                appendTo="body"
+                inputId="icon">
+            </p-calendar>
+            <span class="p-error" *ngIf="printInventaireForm.controls['date1'].dirty
+            && printInventaireForm.hasError('required','date1')">
+            * date 1 obligatoire
+        </span>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+        <label for="date2">Date 2 </label>
+        <p-calendar
+        [showIcon]="true" 
+        formControlName="date2"
+        id="date2"
+        dateFormat="yy-mm-dd"
+        appendTo="body"
+        placeholder="Sélectionner la date "
+        inputId="icon">
+    </p-calendar>
+    <span class="p-error"
+    *ngIf="printInventaireForm.controls['date2'].dirty &&
+    printInventaireForm.hasError('required','date2')">
+    * date 1 obligatoire
+</span>
 </div>
 </div>
-</div>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerPrintDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Imprimer(F.I)" icon="pi pi-print" 
+        class="p-button-success" 
+        (click)=" printDoc()"></button>
+    </div>
+    
+</ng-template>
+</p-dialog>

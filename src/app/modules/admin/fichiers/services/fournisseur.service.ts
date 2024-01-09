@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class FournisseurService {
- baseApiUrl: string = environment.baseApiUrl;
+  baseApiUrl: string = environment.baseApiUrl;
   
   private headers = {
     headers: new HttpHeaders().set('Content-Type', 'application/json')
@@ -14,8 +14,8 @@ export class FournisseurService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Fournisseur');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Fournisseur/all/'+id);
   }
   
   add(entity: any){

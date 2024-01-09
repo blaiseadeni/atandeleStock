@@ -5,6 +5,7 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { AuthComponent } from './auth.component';
 import { LoginComponent } from 'src/app/modules/auth/login/login.component';
 import { PrimengModule } from 'src/app/_primeng/primeng.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -15,7 +16,9 @@ import { PrimengModule } from 'src/app/_primeng/primeng.module';
   imports: [
     CommonModule,
     PrimengModule,
-    AuthRoutingModule
+    AuthRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
   ]
 })
 export class AuthModule { }

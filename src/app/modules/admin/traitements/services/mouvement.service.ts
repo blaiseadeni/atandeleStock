@@ -14,8 +14,8 @@ export class MouvementService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Mouvement');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Mouvement/all/'+id);
   }
   
   add(entity: any){

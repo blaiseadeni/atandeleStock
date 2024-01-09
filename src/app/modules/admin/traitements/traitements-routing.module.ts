@@ -1,3 +1,4 @@
+import { FactureNpComponent } from './components/facture-np/facture-np.component';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ArticleComponent } from './components/article/article.component';
@@ -36,6 +37,7 @@ import { StockComponent } from './components/stock/stock.component';
       {path:'paiement', component: PaiementComponent},
       {path:'inventaire', component: InventaireComponent},
       {path:'inventaire-compt', component: EtatStockComponent},
+      {path:'facture-np', component: FactureNpComponent},
     ]
     )],
     exports: [RouterModule],

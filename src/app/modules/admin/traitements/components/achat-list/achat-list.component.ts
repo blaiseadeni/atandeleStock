@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AchatService } from '../../services/achat.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-verif-genere-penal',
@@ -14,8 +16,11 @@ export class AchatListComponent implements OnInit {
   cols: any = [];
   deleteDialog: boolean = false;
   
-  achat: any = {};
   achats: any = [];
+  achat: any = {};
+  
+  utilisateurId: any;
+  locationId: any;
   
   varificationDialog : boolean = false;
   verificationForm: FormGroup;
@@ -23,6 +28,7 @@ export class AchatListComponent implements OnInit {
   constructor(
     private service: AchatService,
     private messageService: MessageService,
+    private jwtHelper:JwtHelperService
     ) { }
     
     ngOnInit(): void {
@@ -30,11 +36,17 @@ export class AchatListComponent implements OnInit {
         value1: new FormControl('', Validators.required),
         value2: new FormControl('', Validators.required),
       })
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      
       this.getAll();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.achats = response;
@@ -77,6 +89,15 @@ export class AchatListComponent implements OnInit {
       });
     }
     
+    PrintBA(id: any) {
+      this.service.GeneratePDF(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
+    }
+    
+    
     hideSelect() {
       this.deleteDialog = false;
     }
@@ -95,6 +116,10 @@ export class AchatListComponent implements OnInit {
     
     fermerDialog(){
       this.varificationDialog = false;
+    }
+    
+    onGlobalFilter(table: Table, event: Event) {
+      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
     
     private validateAllFields(formGroup: FormGroup) {

@@ -5,6 +5,7 @@ import { PrixLocationService } from '../../services/prix-location.service';
 import { ArticleService } from '../../../fichiers/services/article.service';
 import { LocationService } from '../../../fichiers/services/location.service';
 import { MonnaieService } from '../../../fichiers/services/monnaie.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 
 @Component({
@@ -29,6 +30,9 @@ export class PrixArticleLocationComponent implements OnInit {
   prixtDialog: boolean = false;
   prixForm: FormGroup;
   
+  utilisateurId: any;
+  locationId: any;
+  
   constructor(
     private service: PrixLocationService,
     private articleService: ArticleService,
@@ -36,16 +40,22 @@ export class PrixArticleLocationComponent implements OnInit {
     private monnaieService: MonnaieService,
     private messageService: MessageService,
     private fb: FormBuilder,
+    private jwtHelper:JwtHelperService
     ) { }
     
     ngOnInit(): void {
       this.prixForm = new FormGroup({
         prixVenteDetail: new FormControl('', Validators.required),
         prixVenteGros: new FormControl('', Validators.required),
-        monnaie: new FormControl('', Validators.required),
-        locationId: new FormControl('', Validators.required),
+        // locationId: new FormControl('', Validators.required),
         articleId: new FormControl('', Validators.required),
       });
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      
       this.getAll();
       this.getAllArticles();
       this.getAllLocations();
@@ -53,7 +63,7 @@ export class PrixArticleLocationComponent implements OnInit {
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.prixLocations = response;
@@ -93,7 +103,7 @@ export class PrixArticleLocationComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.monnaies = response;
-          console.log(this.monnaies);
+          // console.log(this.monnaies);
         },
         error: (errors) => {
           console.log(errors);
@@ -122,10 +132,9 @@ export class PrixArticleLocationComponent implements OnInit {
       const request = {
         prixVenteDetail: this.prixVenteDetailValue.value,
         prixVenteGros: this.prixVenteGrosValue.value,
-        monnaie: this.monnaieValue.value.devise,
-        locationId: this.locationIdValue.value.id,
-        articleId: this.articleIdValue.value.id
-        
+        locationId: this.locationId,
+        articleId: this.articleIdValue.value.id,
+        utilisateurId:this.utilisateurId
         
       }
       this.service.add(request)
@@ -152,9 +161,9 @@ export class PrixArticleLocationComponent implements OnInit {
       const request = {
         prixVenteDetail: this.prixVenteDetailValue.value,
         prixVenteGros: this.prixVenteGrosValue.value,
-        monnaie: this.monnaieValue.value.devise,
-        locationId: this.locationIdValue.value.id,
-        articleId: this.articleIdValue.value.id
+        locationId: this.locationId,
+        articleId: this.articleIdValue.value.id,
+        utilisateurId:this.utilisateurId
         
       }
       
@@ -205,7 +214,7 @@ export class PrixArticleLocationComponent implements OnInit {
           this.prixLocation = response;
           this.prixForm.get("prixVenteDetail")?.patchValue(this.prixLocation.prixVenteDetail);
           this.prixForm.get("prixVenteGros")?.patchValue(this.prixLocation.prixVenteGros);
-          this.prixForm.get("monnaie")?.patchValue(this.prixLocation.monnaie);
+          // this.prixForm.get("monnaie")?.patchValue(this.prixLocation.monnaie);
           this.prixForm.get("locationId")?.patchValue(this.prixLocation.locationId);
           this.prixForm.get("articleId")?.patchValue(this.prixLocation.articleId);
           
@@ -261,13 +270,9 @@ export class PrixArticleLocationComponent implements OnInit {
       return this.prixForm.get("prixVenteGros")
     }
     
-    get monnaieValue(){
-      return this.prixForm.get("monnaie")
-    }
-    
-    get locationIdValue(){
-      return this.prixForm.get("locationId")
-    }
+    // get locationIdValue(){
+    //   return this.prixForm.get("locationId")
+    // }
     
     get articleIdValue(){
       return this.prixForm.get("articleId")

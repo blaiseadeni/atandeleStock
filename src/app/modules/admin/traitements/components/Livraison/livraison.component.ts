@@ -5,6 +5,7 @@ import { CommandeService } from '../../services/commande.service';
 import { LivraisonService } from '../../services/livraison.service';
 import { LocationService } from '../../../fichiers/services/location.service';
 import { ArticleService } from '../../../fichiers/services/article.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-annulation-rappro',
@@ -26,10 +27,13 @@ export class LivraisonComponent implements OnInit {
   fournisseurId: any;
   monnaieId: any;
   locationId: any;
+  livraisonId: any;
   quantiteReste: any;
   
   commandedetail !: FormArray<any>;
   commandeproduct !: FormGroup<any>;
+  
+  utilisateurId: any;
   
   constructor(
     private fb: FormBuilder,
@@ -38,26 +42,33 @@ export class LivraisonComponent implements OnInit {
     private locationService: LocationService,
     private articleService: ArticleService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ) { }
     
     ngOnInit(): void {
       this.livraisonForm = new FormGroup({
-        numeroLivraison: new FormControl('', Validators.required),
+        // numeroLivraison: new FormControl('', Validators.required),
         numeroCommande: new FormControl('', Validators.required),
         dateLivraison: new FormControl({value:'',disabled:true}, Validators.required),
         fournisseur: new FormControl({ value: '', disabled: true}, Validators.required),
-        locationId: new FormControl('', Validators.required),
-        monnaieId: new FormControl({ value: '', disabled: true}, Validators.required),
+        // locationId: new FormControl('', Validators.required),
+        // monnaieId: new FormControl({ value: '', disabled: true}, Validators.required),
         observation: new FormControl(''),
         totalLivraison: new FormControl({value:0,disabled:true}),
         livraisonDetails: this.fb.array([]),
       });
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      
       this.getAllCommandes();
       this.getAllLocations();
     }
     
     getAllCommandes() {
-      this.commandeService.getAll()
+      this.commandeService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.commandes = response;
@@ -71,7 +82,7 @@ export class LivraisonComponent implements OnInit {
     getCommande(event: any) {
       // console.log(event.value);
       this.fournisseurId = event.value.fournisseurId;
-      this.monnaieId = event.value.monnaieId;
+      // this.monnaieId = event.value.monnaieId;
       this.articles = event.value.detailCommandes;
       this.livraisonForm.get("dateLivraison")?.patchValue(event.value.dateLivraison );
       this.livraisonForm.get("fournisseur")?.patchValue(event.value.fournisseur );
@@ -86,7 +97,7 @@ export class LivraisonComponent implements OnInit {
       this.commandeproduct.get("emballage")?.patchValue(event.value.emballage);
       this.commandeproduct.get("quantiteLivree")?.patchValue(event.value.quantiteLivree);
       this.quantiteReste =this.commandeproduct.get("resteQuantite")?.patchValue(event.value.quantite - event.value.quantiteLivree);
-      this.commandeproduct.get("prixUnit")?.patchValue(event.value.prixUnit);
+      // this.commandeproduct.get("prixUnit")?.patchValue(event.value.prixUnit);
       this.commandeproduct.get("prixTotal")?.patchValue(event.value.prixTotal);
       this.calculation(index);
     }
@@ -151,7 +162,7 @@ export class LivraisonComponent implements OnInit {
         quantiteLivree: new FormControl({value:0,disabled:true}, Validators.required),
         livraisonActu: new FormControl(0, Validators.required),
         resteQuantite: new FormControl({value:0,disabled:true}, Validators.required),
-        prixUnit: new FormControl({value:0, disabled:true}, Validators.required),
+        prixUnit: new FormControl(0, Validators.required),
         prixTotal: new FormControl({value:0, disabled: true}, Validators.required),
       });
     }
@@ -182,6 +193,7 @@ export class LivraisonComponent implements OnInit {
       }
       
     }
+    
     add() {
       const detail: any = [];
       this.newRowsList.controls.forEach((v) => {
@@ -190,20 +202,22 @@ export class LivraisonComponent implements OnInit {
           article: v.value.articleId.article,
           emballage: v.value.articleId.emballage,
           quantite: v.value.livraisonActu,
-          prixUnit: v.value.articleId.prixUnit,
+          prixUnit: v.value.prixUnit,
           prixTotal: v.value.livraisonActu * v.value.articleId.prixUnit,
         }
         detail.push(items);
       })
       const request = {
-        numeroLivraison: this.numeroLivraisonValue.value,
+        // numeroLivraison: this.numeroLivraisonValue.value,
         numeroCommande: this.numeroCommandeValue.value.numeroCommande,
         dateLivraison: this.dateLivraisonValue.value,
         fournisseurId: this.fournisseurId,
         observation: this.observationValue.value,
-        locationId: this.locationIdValue.value.id,
-        monnaieId: this.monnaieId,
-        detailLivraisons:  detail,
+        locationId: this.locationId,
+        // monnaieId: this.monnaieId,
+        utilisateurId: this.utilisateurId,
+        totalLivraison:this.totalLivraisonValue.value,
+        detailLivraisons: detail,
         
       }
       const value = JSON.stringify(request)
@@ -213,6 +227,56 @@ export class LivraisonComponent implements OnInit {
         next: (response) => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
           this.reset();
+          this.livraisonId = response;
+          // console.log(this.livraisonId);
+        },
+        complete: () => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+        },
+        error: (e) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+          this.reset();
+        }
+      });
+    }
+    
+    addPrint() {
+      const detail: any = [];
+      this.newRowsList.controls.forEach((v) => {
+        const items = {
+          articleId: v.value.articleId.articleId,
+          article: v.value.articleId.article,
+          emballage: v.value.articleId.emballage,
+          quantite: v.value.livraisonActu,
+          prixUnit: v.value.prixUnit,
+          prixTotal: v.value.livraisonActu * v.value.articleId.prixUnit,
+        }
+        detail.push(items);
+      })
+      const request = {
+        // numeroLivraison: this.numeroLivraisonValue.value,
+        numeroCommande: this.numeroCommandeValue.value.numeroCommande,
+        dateLivraison: this.dateLivraisonValue.value,
+        fournisseurId: this.fournisseurId,
+        observation: this.observationValue.value,
+        locationId: this.locationId,
+        // monnaieId: this.monnaieId,
+        utilisateurId: this.utilisateurId,
+        totalLivraison:this.totalLivraisonValue.value,
+        detailLivraisons: detail,
+        
+      }
+      const value = JSON.stringify(request)
+      // console.log(request);
+      this.service.add(value)
+      .subscribe({
+        next: (response) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.reset();
+          this.livraisonId = response;
+          // console.log(this.livraisonId);
+          this.PrintBC(this.livraisonId.id)
         },
         complete: () => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
@@ -241,17 +305,20 @@ export class LivraisonComponent implements OnInit {
       })
       
       const request = {
-        numeroLivraison: this.numeroLivraisonValue.value,
+        // numeroLivraison: this.numeroLivraisonValue.value,
         numeroCommande: this.numeroCommandeValue.value,
         dateLivraison: this.dateLivraisonValue.value,
         fournisseurId: this.fournisseurId,
         observation: this.observationValue.value,
         locationId: this.locationId,
-        monnaieId: this.monnaieId,
+        // monnaieId: this.monnaieId,
+        utilisateurId: this.utilisateurId,
+        totalLivraison:this.totalLivraisonValue.value,
         detailLivraisons:  detail,
         
       }
       const value = JSON.stringify(request)
+      console.log(value);
       this.service.update(this.livraison.id, value)
       .subscribe({
         next: (response) => {
@@ -266,6 +333,24 @@ export class LivraisonComponent implements OnInit {
           this.reset();
         }
       })
+    }
+    
+    savePrint() {
+      if (this.livraisonForm.valid)
+      {
+        this.addPrint();
+      } else {
+        this.validateAllFields(this.livraisonForm);
+      }
+      
+    }
+    
+    PrintBC(id: any) {
+      this.service.GeneratePDF(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
     }
     
     Cheik() {
@@ -291,22 +376,22 @@ export class LivraisonComponent implements OnInit {
     
     reset() {
       this.livraisonForm =  this.fb.group({
-        numeroLivraison: [],
+        // numeroLivraison: [],
         numeroCommande: [],
         dateLivraison: [],
         fournisseur: [],
         locationId: [],
-        monnaieId: [],
+        // monnaieId: [],
         observation: [],
-        totalLivraison: [],
+        totalLivraison: {value:0, disabled:true},
         livraisonDetails: this.fb.array([]),
       });
     }
     
     
-    get numeroLivraisonValue(){
-      return this.livraisonForm.get("numeroLivraison");
-    }
+    // get numeroLivraisonValue(){
+    //   return this.livraisonForm.get("numeroLivraison");
+    // }
     get numeroCommandeValue(){
       return this.livraisonForm.get("numeroCommande");
     }
@@ -319,11 +404,17 @@ export class LivraisonComponent implements OnInit {
     get locationIdValue(){
       return this.livraisonForm.get("locationId");
     }
-    get monnaieIdValue(){
-      return this.livraisonForm.get("monnaieId");
+    // get monnaieIdValue(){
+    //   return this.livraisonForm.get("monnaieId");
+    // }
+    get prixUnitValue(){
+      return this.livraisonForm.get("prixUnit");
     }
     get observationValue(){
       return this.livraisonForm.get("observation");
+    }
+    get totalLivraisonValue(){
+      return this.livraisonForm.get("totalLivraison");
     }
     
     

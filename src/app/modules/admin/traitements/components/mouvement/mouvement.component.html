@@ -1,7 +1,7 @@
 <div class="grid">
     <div class="col-12">
         <div class="card px-6 py-6">
-            <div class="card p-fluid">
+            <!-- <div class="card p-fluid">
                 <h5>Options de recherche </h5>
                 <div class="p-formgrid grid">
                     
@@ -14,6 +14,7 @@
                         <label htmlFor="email2">Type mouvement</label>
                         <p-dropdown
                         placeholder="Sélectionner un fournisseur " 
+                        [autoDisplayFirst]="false"
                         [filter]="true"
                         filterBy="name"
                         [showClear]="true"></p-dropdown>
@@ -22,6 +23,7 @@
                         <label htmlFor="email2">Article</label>
                         <p-dropdown
                         placeholder="Sélectionner une monnaie " 
+                        [autoDisplayFirst]="false"
                         [filter]="true"
                         filterBy="name"
                         [showClear]="true"></p-dropdown>
@@ -32,12 +34,12 @@
                     </div>
                     
                 </div>
-            </div>
+            </div> -->
             
             <p-table #dt 
             [columns]="cols"
             responsiveLayout="scroll" 
-            [globalFilterFields]="['name','country.name']" 
+            [globalFilterFields]="['article','periode','libelle']" 
             [rows]="10" 
             [paginator]="true" 
             [rowsPerPageOptions]="[10,20,30]" 
@@ -49,61 +51,81 @@
             dataKey="id">
             <ng-template pTemplate="caption">
                 <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                    <h5 class="m-0">Mouvement du stock</h5>
+                    <h5 class="m-0">Mouvement de stock</h5>
+                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
+                    </span>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
                 <tr>
                     <th pSortableColumn="tile">#<p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Date mouvement <p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Type mouvement<p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Designation<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Date <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Période <p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Libellé<p-sortIcon field="title"></p-sortIcon></th>
                     <th pSortableColumn="title">Article<p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Quantité<p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Emballage<p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Location<p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Créer par<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Qté Entrées<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">P.U Entrées<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">P.T Entrées<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Qté Sorties<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">P.U Sorties<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">P.T Sorties<p-sortIcon field="title"></p-sortIcon></th>
+                    <th pSortableColumn="title">Stock Final<p-sortIcon field="title"></p-sortIcon></th>
                     <th></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-mouvement let-rowIndex="rowIndex">
                 <tr>
                     
-                    <td style="width:14%; min-width:5rem;">
+                    <td style="width:10%; min-width:5rem;">
                         <span class="p-column-title">#</span>
                         {{rowIndex+1}}
                     </td>
-                    <td style="width:14%; min-width:12rem;">
-                        <span class="p-column-title">Date mouvement</span>
-                        {{mouvement.created | date:"dd/MM/yyyy"}}
+                    <td style="width:10%; min-width:7rem;">
+                        <span class="p-column-title">Date </span>
+                        {{mouvement.date | date:"dd/MM/yyyy"}}
                     </td>
-                    <td style="width:14%; min-width:12rem;">
-                        <span class="p-column-title">Type mouvement</span>
-                        {{mouvement.type}}
+                    <td style="width:7%; min-width:8rem;">
+                        <span class="p-column-title">periode </span>
+                        {{mouvement.periode}}
                     </td>
-                    <td style="width:14%; min-width:10rem;">
-                        <span class="p-column-title">Designation</span>
-                        {{mouvement.designation}}
+                    <td style="width:7%; min-width:7rem;">
+                        <span class="p-column-title">libelle</span>
+                        {{mouvement.libelle}}
                     </td>
-                    <td style="width:14%; min-width:15rem;">
-                        <span class="p-column-title">Article</span>
+                    <td style="width:20%; min-width:15rem;">
+                        <span class="p-column-title">article</span>
                         {{mouvement.article}}
                     </td>
-                    <td style="width:14%; min-width:8rem;text-align: right;">
-                        <span class="p-column-title">Quantité</span>
-                        {{mouvement.quantite}}
+                    <td style="width:7%; min-width:9rem; text-align: center;">
+                        <span class="p-column-title">Qte Entrées</span>
+                        {{mouvement.qteEntr}}
                     </td>
-                    <td style="width:14%; min-width:10rem;">
-                        <span class="p-column-title">Emballage</span>
-                        {{mouvement.emballage}}
+                    <td style="width:25%; min-width:9rem;text-align: center">
+                        <span class="p-column-title">PU Entrées</span>
+                        {{mouvement.puEntr}}
                     </td>
-                    <td style="width:14%; min-width:15rem;">
-                        <span class="p-column-title">Location</span>
-                        {{mouvement.location}}
+                    <td style="width:14%; min-width:9rem;text-align: center;">
+                        <span class="p-column-title">PT Entrées</span>
+                        {{mouvement.ptEnt}}
                     </td>
-                    <td style="width:14%; min-width:10rem;">
-                        <span class="p-column-title">Créer par</span>
-                        
+                    <td style="width:25%; min-width:9rem; text-align: center;">
+                        <span class="p-column-title">Qte Sorties</span>
+                        {{mouvement.qteSort}}
+                    </td>
+                    <td style="width:14%; min-width:9rem; text-align: center;">
+                        <span class="p-column-title">PU Sorties</span>
+                        {{mouvement.puSort}}
+                    </td>
+                    <td style="width:14%; min-width:10rem; text-align: center;">
+                        <span class="p-column-title">PT Sorties</span>
+                        {{mouvement.ptSort}}
+                    </td>
+                    
+                    <td style="width:14%; min-width:10rem; text-align: center;">
+                        <span class="p-column-title">Stock Final</span>
+                        {{mouvement.qteSt}}
                     </td>
                     
                     

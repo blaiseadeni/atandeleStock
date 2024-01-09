@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MonnaieService } from '../../services/monnaie.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-annul-mvt-comp',
@@ -20,7 +21,9 @@ export class MonnaieComponent implements OnInit {
   monnaies: any = [];
   
   monnaieDialog: boolean = false;
-  monnaieForm 
+  monnaieForm: FormGroup;
+  
+  utilisateurId: any;
   
   /**
   *
@@ -28,6 +31,7 @@ export class MonnaieComponent implements OnInit {
   constructor(
     private service: MonnaieService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ) {}
     
     ngOnInit(): void {
@@ -36,6 +40,10 @@ export class MonnaieComponent implements OnInit {
         libelle : new FormControl('', Validators.required),
       })
       this.getAll();
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
     }
     
     getAll() {
@@ -70,7 +78,8 @@ export class MonnaieComponent implements OnInit {
       const request = {
         libelle: this.libelleValue.value,
         devise: this.deviseValue.value,
-        estLocal: this.estLocal
+        estLocal: this.estLocal,
+        utilisateurId: this.utilisateurId
       }
       this.service.add(request)
       .subscribe({
@@ -97,6 +106,7 @@ export class MonnaieComponent implements OnInit {
         libelle: this.libelleValue.value,
         devise: this.deviseValue.value,
         estLocal: this.estLocal,
+        utilisateurId: this.utilisateurId
         
       }
       

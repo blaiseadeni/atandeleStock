@@ -22,6 +22,7 @@ import { FactureListComponent } from './components/facture-list/facture-list.com
 import { PaiementComponent } from './components/paiement/paiement.component';
 import { InventaireComponent } from './components/inventaire/inventaire.component';
 import { StockComponent } from './components/stock/stock.component';
+import { FactureNpComponent } from './components/facture-np/facture-np.component';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { StockComponent } from './components/stock/stock.component';
     FactureListComponent,
     PaiementComponent,
     InventaireComponent,
-    StockComponent
+    StockComponent,
+    FactureNpComponent
   ],
   imports: [
     CommonModule,

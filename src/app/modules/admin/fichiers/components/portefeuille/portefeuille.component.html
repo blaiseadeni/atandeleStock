@@ -15,7 +15,7 @@
             <p-table #dt 
             [columns]="cols"
             responsiveLayout="scroll" 
-            [globalFilterFields]="['name','country.name']" 
+            [globalFilterFields]="['client']" 
             [rows]="10" 
             [paginator]="true" 
             [rowsPerPageOptions]="[10,20,30]" 
@@ -27,7 +27,7 @@
             dataKey="id">
             <ng-template pTemplate="caption">
                 <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                    <h5 class="m-0">Gestion de portefeuille</h5>
+                    <h5 class="m-0">Gestion d'avance sur client</h5>
                     <span class="block mt-2 md:mt-0 p-input-icon-left">
                         <i class="pi pi-search"></i>
                         <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Recherche..."  class="w-full sm:w-auto"/>
@@ -39,61 +39,58 @@
                     <th pSortableColumn="title">#<p-sortIcon field="title"></p-sortIcon></th>
                     <th pSortableColumn="title">Client <p-sortIcon field="title"></p-sortIcon></th>
                     <th pSortableColumn="title">Montant <p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="title">Monnaie <p-sortIcon field="title"></p-sortIcon></th>
-                    <!-- <th pSortableColumn="title">Dépot <p-sortIcon field="title"></p-sortIcon></th>
-                        <th pSortableColumn="title">Retrait <p-sortIcon field="title"></p-sortIcon></th>
-                        <th pSortableColumn="title">Solde <p-sortIcon field="title"></p-sortIcon></th>-->
-                        <th pSortableColumn="title">Créer le <p-sortIcon field="title"></p-sortIcon></th> 
-                        <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
-                        <th></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-portefeuille let-rowIndex="rowIndex">
-                    <tr>
-                        <td style="width:7%; min-width:7rem;">
-                            <span class="p-column-title">#</span>
-                            {{rowIndex+1}}
-                        </td>
-                        <td style="width:15%; min-width:20rem;">
-                            <span class="p-column-title">clientId</span>
-                            {{portefeuille.client}}
-                        </td>
-                        <td style="width:10%; min-width:10rem;">
-                            <span class="p-column-title">Montant</span>
-                            {{portefeuille.montant}}
-                        </td>
-                        <td style="width:10%; min-width:10rem;">
-                            <span class="p-column-title">Monnaie</span>
-                            {{portefeuille.monnaie}}
-                        </td>
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Creer le</span>
-                            {{portefeuille.created | date:"dd/MM/yyyy"}}
-                        </td>
-                        <td style="width:20%; min-width:15rem;">
-                            <span class="p-column-title">Creer par</span>
-                            
-                        </td>
-                        
-                        <td>
-                            <div class="flex">
-                                <button pButton 
-                                pRipple icon="pi pi-pencil" 
-                                class="p-button-rounded p-button-success mr-2"
-                                (click)="find(portefeuille.id)"  
-                                ></button>
-                                <button pButton pRipple 
-                                icon="pi pi-trash"
-                                class="p-button-rounded p-button-warning"
-                                (click)="deleteSelected(portefeuille.id)"
-                                ></button>
-                            </div>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
+                    <!-- <th pSortableColumn="title">Monnaie <p-sortIcon field="title"></p-sortIcon></th> -->
+                    <th pSortableColumn="title">Créer le <p-sortIcon field="title"></p-sortIcon></th> 
+                    <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
+                    <th [hidden]="role === 'FACTURIER'"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-portefeuille let-rowIndex="rowIndex">
+                <tr>
+                    <td style="width:7%; min-width:7rem;">
+                        <span class="p-column-title">#</span>
+                        {{rowIndex+1}}
+                    </td>
+                    <td style="width:25%; min-width:20rem;">
+                        <span class="p-column-title">clientId</span>
+                        {{portefeuille.client|uppercase}}
+                    </td>
+                    <td style="width:25%; min-width:10rem;">
+                        <span class="p-column-title">Montant</span>
+                        {{portefeuille.montant | currency:"UGX "}}
+                    </td>
+                    <!-- <td style="width:10%; min-width:10rem;">
+                        <span class="p-column-title">Monnaie</span>
+                        {{portefeuille.monnaie| uppercase}}
+                    </td> -->
+                    <td style="width:25%; min-width:10rem;">
+                        <span class="p-column-title">Creer le</span>
+                        {{portefeuille.created | date:"dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:25%; min-width:15rem;">
+                        <span class="p-column-title">Creer par</span>
+                        {{portefeuille.utilisateur|uppercase}}
+                    </td>
+                    
+                    <td [hidden]="role === 'FACTURIER'">
+                        <div class="flex">
+                            <button pButton 
+                            pRipple icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-success mr-2"
+                            (click)="find(portefeuille.id)"  
+                            ></button>
+                            <button pButton pRipple 
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="deleteSelected(portefeuille.id)"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
     </div>
+</div>
 </div>
 
 <p-dialog [(visible)]="portefeuilleDialog" 
@@ -109,6 +106,7 @@ header="Details Portefeuille"
                 placeholder="Sélectionner un client " 
                 [filter]="true"
                 [options]="clients"
+                [autoDisplayFirst]="false"
                 formControlName="clientId"
                 id="clientId"
                 optionLabel="nom"
@@ -122,7 +120,7 @@ header="Details Portefeuille"
         * client est obligatoire
     </span>
 </div>
-<div class="field">
+<!-- <div class="field">
     <label for="monnaieId">Monnaie</label>
     <div class="field">
         <p-dropdown
@@ -130,6 +128,7 @@ header="Details Portefeuille"
         [filter]="true"
         [options]="monnaies"
         optionLabel="devise"
+        [autoDisplayFirst]="false"
         formControlName="monnaieId"
         id="monnaieId"
         filterBy="devise"
@@ -141,7 +140,7 @@ header="Details Portefeuille"
 && portefeuilleForm.hasError('required','monnaieId')">
 * monnaie est obligatoire
 </span>
-</div>
+</div> -->
 
 <div class="field">
     <label for="name">Montant</label>
@@ -149,7 +148,6 @@ header="Details Portefeuille"
     pInputText 
     id="montant"
     formControlName="montant"
-    autofocus
     placeholder="saisir le montant"/>
     <span class="p-error"
     *ngIf="portefeuilleForm.controls['montant'].dirty &&

@@ -14,8 +14,8 @@ export class EmballageService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Emballage');
+  getAll(id: any){
+    return this.http.get(this.baseApiUrl + 'api/Emballage/all/'+id);
   }
   
   add(emballage: any){

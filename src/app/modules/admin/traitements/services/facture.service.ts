@@ -14,8 +14,12 @@ export class FactureService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Facture');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Facture/all/'+id);
+  }
+  
+  getAllNp(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Facture/np/'+id);
   }
   
   add(entity: any){
@@ -37,5 +41,19 @@ export class FactureService {
   
   delete(id?: string){
     return this.http.delete(this.baseApiUrl +'api/Facture/' + id);
+  }
+  
+  
+  
+  PrintPOS(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/pos/' + id,{observe:'response',responseType:'blob'});
+  }
+  
+  PrintA4(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/facture/' + id,{observe:'response',responseType:'blob'});
+  }
+  
+  GeneratePDF(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/facture/' + id,{observe:'response',responseType:'blob'});
   }
 }

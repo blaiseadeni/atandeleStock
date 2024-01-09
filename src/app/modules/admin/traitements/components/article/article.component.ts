@@ -5,6 +5,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ArticleService } from '../../../fichiers/services/article.service';
 import { EmballageService } from '../../../fichiers/services/emballage.service';
 import { FamilleService } from '../../../fichiers/services/famille.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-declaration-tp',
@@ -27,6 +28,8 @@ export class ArticleComponent implements OnInit {
   articleDialog: boolean = false;
   articleForm: FormGroup;
   
+  utilisateurId: any;
+  locationId: any;
   /**
   *
   */
@@ -35,6 +38,7 @@ export class ArticleComponent implements OnInit {
     private emballageService: EmballageService,
     private famillleService: FamilleService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ) {
       
     }
@@ -47,9 +51,16 @@ export class ArticleComponent implements OnInit {
         quantiteDetail: new FormControl('', Validators.required),
         stockMinimal: new FormControl('', Validators.required),
       });
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      
       this.getAll();
       this.getAllEmballages();
       this.getAllFamilles();
+      
+      
     }
     
     getAll() {
@@ -64,7 +75,7 @@ export class ArticleComponent implements OnInit {
       });
     }
     getAllEmballages() {
-      this.emballageService.getAll()
+      this.emballageService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.emballages = response;
@@ -75,7 +86,7 @@ export class ArticleComponent implements OnInit {
       });
     }
     getAllFamilles() {
-      this.famillleService.getAll()
+      this.famillleService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.familles = response;
@@ -109,7 +120,8 @@ export class ArticleComponent implements OnInit {
         emballageGrosId: this.emballageGrosIdValue.value.id,
         emballageDetailId: this.emballageDetailIdValue.value.id,
         quantiteDetail: this.quantiteDetailValue.value,
-        stockMinimal: this.stockMinimalValue.value
+        stockMinimal: this.stockMinimalValue.value,
+        utilisateurId: this.utilisateurId
       }
       this.service.add(request)
       .subscribe({
@@ -138,7 +150,8 @@ export class ArticleComponent implements OnInit {
         emballageGrosId: this.emballageGrosIdValue.value.id,
         emballageDetailId: this.emballageDetailIdValue.value.id,
         quantiteDetail: this.quantiteDetailValue.value,
-        stockMinimal: this.stockMinimalValue.value
+        stockMinimal: this.stockMinimalValue.value,
+        utilisateurId: this.utilisateurId
         
       }
       
@@ -193,7 +206,7 @@ export class ArticleComponent implements OnInit {
           this.articleForm.get("emballageDetailId")?.patchValue(this.article.emballageDetailId);
           this.articleForm.get("quantiteDetail")?.patchValue(this.article.quantiteDetail);
           this.articleForm.get("stockMinimal")?.patchValue(this.article.stockMinimal);
-         
+          
           this.articleDialog = true;
         },
         error: (response) => {
@@ -203,12 +216,12 @@ export class ArticleComponent implements OnInit {
     }
     
     reset() {
-       this.articleForm.get("familleId")?.patchValue('');
-          this.articleForm.get("designation")?.patchValue('');
-          this.articleForm.get("emballageGrosId")?.patchValue('');
-          this.articleForm.get("emballageDetailId")?.patchValue('');
-          this.articleForm.get("quantiteDetail")?.patchValue('');
-          this.articleForm.get("stockMinimal")?.patchValue('');
+      this.articleForm.get("familleId")?.patchValue('');
+      this.articleForm.get("designation")?.patchValue('');
+      this.articleForm.get("emballageGrosId")?.patchValue('');
+      this.articleForm.get("emballageDetailId")?.patchValue('');
+      this.articleForm.get("quantiteDetail")?.patchValue('');
+      this.articleForm.get("stockMinimal")?.patchValue('');
       this.article = {};
     }
     

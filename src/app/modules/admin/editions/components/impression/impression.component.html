@@ -1,0 +1,283 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <form [formGroup]="resultatForm">
+                <div class="grid p-fluid ">
+                    <div class="field col-12 md:col-2">
+                        <label id="label">Imprimer une :  </label>
+                        <p-dropdown
+                        [options]="values"
+                        optionLabel="libelle"
+                        [autoDisplayFirst]="false"
+                        [showClear]="true"
+                        (onChange)="getcritere($event);"
+                        [filter]="true"
+                        filterBy="libelle"
+                        placeholder="selectionner un critère"
+                        appendTo="body">
+                    </p-dropdown>
+                </div>
+                
+                <div class="field col-12 md:col-2 mt-2 ">
+                    <label for=""></label>
+                    <button pButton pRipple
+                    [disabled]="vente === false"
+                    label="Fiche de vente"
+                    (click)="showVenteDialog()"
+                    icon="pi pi-print"
+                    id="print"
+                    class="p-button-primary p-button-rounded mr-2"
+                    ></button>
+                </div>
+                <div class="field col-12 md:col-2 mt-2 ">
+                    <label for=""></label>
+                    <button pButton pRipple
+                    [disabled]="stock === false"
+                    label="Fiche de stock"
+                    (click)="showStockDialog()"
+                    icon="pi pi-print"
+                    id="print"
+                    class="p-button-warning p-button-rounded mr-2"
+                    ></button>
+                </div>
+                <div class="field col-12 md:col-2 mt-2 ">
+                    <label for=""></label>
+                    <button pButton pRipple
+                    [disabled]="inventaire === false"
+                    label="Fiche d'inventaire"
+                    (click)="showEventDialog()"
+                    icon="pi pi-print"
+                    id="print"
+                    class="p-button-success p-button-rounded mr-2"
+                    ></button>
+                </div>
+                <div class="field col-12 md:col-1">
+                    
+                </div>
+                <div class="field col-12 md:col-1" [hidden]="role != 'MANAGER'">
+                    <label id="annee">Année :  </label>
+                    <p-inputNumber type="text"
+                    id="annee"
+                    formControlName="annee"
+                    >
+                </p-inputNumber>
+                <span class="p-error" *ngIf="resultatForm.controls['annee'].dirty
+                && resultatForm.hasError('required','annee')">
+                * annee obligatoire
+            </span>
+        </div>
+        <div class="field col-12 md:col-2 mt-2 " [hidden]="role != 'MANAGER'">
+            <label for=""></label>
+            <button pButton pRipple
+            label="Résultat annuelle"
+            (click)=" PrintResultat()"
+            icon="pi pi-print"
+            id="print"
+            class="p-button-rounded mr-2"
+            ></button>
+        </div>
+    </div>
+</form>
+
+<div class="col-12" id="pdf" >
+    <div >
+        <ngx-extended-pdf-viewer
+        [src]="url"
+        [height]="'150vh'"
+        [textLayer]="true"
+        [showHandToolButton]="true">
+    </ngx-extended-pdf-viewer>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<p-dialog [(visible)]="venteDialog" 
+[style]="{width: '500px'}"
+header="Details Vente" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="venteForm">
+        
+        <div class="grid p-fluid mt-3">
+            <div class="field col-12 md:col-6">
+                <label for="date1">Date 1</label>
+                <p-calendar
+                [showIcon]="true" 
+                formControlName="date1"
+                id="date1"
+                dateFormat="yy-mm-dd"
+                placeholder="Sélectionner la date 1"
+                appendTo="body"
+                inputId="icon">
+            </p-calendar>
+            <span class="p-error" *ngIf="venteForm.controls['date1'].dirty
+            && venteForm.hasError('required','date1')">
+            * date 1 obligatoire
+        </span>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+        <label for="date2">Date 2 </label>
+        <p-calendar
+        [showIcon]="true" 
+        formControlName="date2"
+        id="date2"
+        dateFormat="yy-mm-dd"
+        appendTo="body"
+        placeholder="Sélectionner la date "
+        inputId="icon">
+    </p-calendar>
+    <span class="p-error"
+    *ngIf="venteForm.controls['date2'].dirty &&
+    venteForm.hasError('required','date2')">
+    * date 1 obligatoire
+</span>
+</div>
+</div>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="hideVenteDialog()"></button>
+        
+        <button pButton pRipple 
+        [hidden]="button === false"
+        label="Imprimer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)=" printVente()"></button>
+        
+    </div>
+    
+</ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="inventDialog" 
+[style]="{width: '500px'}"
+header="Details Inventaire" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="venteForm">
+        
+        <div class="grid p-fluid mt-3">
+            <div class="field col-12 md:col-6">
+                <label for="date1">Date 1</label>
+                <p-calendar
+                [showIcon]="true" 
+                formControlName="date1"
+                id="date1"
+                dateFormat="yy-mm-dd"
+                placeholder="Sélectionner la date 1"
+                appendTo="body"
+                inputId="icon">
+            </p-calendar>
+            <span class="p-error" *ngIf="venteForm.controls['date1'].dirty
+            && venteForm.hasError('required','date1')">
+            * date 1 obligatoire
+        </span>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+        <label for="date2">Date 2 </label>
+        <p-calendar
+        [showIcon]="true" 
+        formControlName="date2"
+        id="date2"
+        dateFormat="yy-mm-dd"
+        appendTo="body"
+        placeholder="Sélectionner la date "
+        inputId="icon">
+    </p-calendar>
+    <span class="p-error"
+    *ngIf="venteForm.controls['date2'].dirty &&
+    venteForm.hasError('required','date2')">
+    * date 1 obligatoire
+</span>
+</div>
+</div>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="hideEventDialog()"></button>
+        
+        <button pButton pRipple 
+        [hidden]="button === false"
+        label="Imprimer" icon="pi pi-save" 
+        class="p-button-success" 
+        (click)="printFIS()"></button>
+        
+    </div>
+    
+</ng-template>
+</p-dialog>
+
+
+
+<p-dialog [(visible)]="stockDialog" 
+[style]="{width: '500px'}"
+header="Details Inventaire" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="stockForm">
+        <div class="field">
+            <label for="articleId">Article</label>
+            <p-dropdown 
+            formControlName="articleId" 
+            [options]="articles" 
+            optionLabel="designation"
+            [autoDisplayFirst]="false"
+            [filter]="true"
+            filterBy="designation"
+            id="articleId"
+            appendTo="body">
+        </p-dropdown>
+        <small
+        class="p-error"
+        *ngIf="
+        stockForm.controls['articleId'].dirty &&
+        stockForm.hasError('required', 'articleId')"
+        >* article obligatoire.</small>
+    </div>
+    <div class="field">
+        <label for="periode">Periode</label>
+        <p-inputNumber type="text"
+        id="periode"
+        formControlName="periode"
+        placeholder="saisir la quantite logique">
+    </p-inputNumber>
+    <small
+    class="p-error"
+    *ngIf="
+    stockForm.controls['periode'].dirty &&
+    stockForm.hasError('required', 'periode')
+    ">* periode obligatoire.</small>
+</div>
+
+</form>   
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="hideStockDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Imprimer" icon="pi pi-print" 
+        class="p-button-success" 
+        (click)=" PrintFS1()"></button>
+    </div>
+</ng-template>
+</p-dialog>

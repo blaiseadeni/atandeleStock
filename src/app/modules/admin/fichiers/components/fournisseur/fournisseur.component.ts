@@ -3,6 +3,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FournisseurService } from '../../services/fournisseur.service';
 import { Table } from 'primeng/table';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-fournisseur',
@@ -22,9 +23,13 @@ export class FournisseurComponent {
   fournisseurDialog: boolean = false;
   fournisseurForm: FormGroup;
   
+  utilisateurId: any;
+  locationId: any;
+  
   constructor(
     private messageService: MessageService,
-    private service: FournisseurService
+    private service: FournisseurService,
+    private jwtHelper: JwtHelperService
     ) {}
     
     ngOnInit(): void {
@@ -34,11 +39,16 @@ export class FournisseurComponent {
         adresse: new FormControl('', Validators.required),
         ville: new FormControl('', Validators.required),
       });
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
       this.getAll();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.fournisseurs = response;
@@ -71,7 +81,7 @@ export class FournisseurComponent {
         telephone: this.telephoneValue.value,
         adresse: this.adresseValue.value,
         ville: this.villeValue.value,
-        
+        utilisateurId: this.utilisateurId
       }
       this.service.add(request)
       .subscribe({
@@ -99,7 +109,7 @@ export class FournisseurComponent {
         telephone: this.telephoneValue.value,
         adresse: this.adresseValue.value,
         ville: this.villeValue.value,
-        
+        utilisateurId: this.utilisateurId
       }
       
       this.service.update(this.fournisseur.id, request)

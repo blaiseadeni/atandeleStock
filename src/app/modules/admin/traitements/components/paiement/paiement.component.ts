@@ -3,6 +3,8 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { PaiementService } from '../../services/paiement.service';
 import { FactureService } from '../../services/facture.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-paiement',
@@ -23,12 +25,17 @@ export class PaiementComponent implements OnInit {
   facture: any = {};
   paiement: any = {};
   paiements: any = [];
+  utilisateurId: any;
+  locationId: any;
+  paiementId: any;
+  role: any;
   
   constructor(
     private fb: FormBuilder,
     private service: PaiementService,
     private factureService: FactureService,
     private messageService: MessageService,
+    private jwtHelper: JwtHelperService
     ) { }
     
     
@@ -36,13 +43,19 @@ export class PaiementComponent implements OnInit {
       this.paiementForm = new FormGroup({
         factureId: new FormControl(''),
         montantVerser: new FormControl('', Validators.required),
-        montantPayer: new FormControl({value:'',disabled:true}),
-        montant: new FormControl({value:'',disabled:true}),
-        resteApayer: new FormControl({value:'',disabled:true}),
+        montantPayer: new FormControl({value:0,disabled:true}),
+        montant: new FormControl({value:0,disabled:true}),
+        resteApayer: new FormControl({value:0,disabled:true}),
         numero: new FormControl('', Validators.required),
-        remise: new FormControl({value:'',disabled:true}),
+        remise: new FormControl({value:0,disabled:true}),
         
       });
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
+      this.role = decodeJWT.role;
       
       this.getAllFacture();
       this.getAll();
@@ -50,11 +63,11 @@ export class PaiementComponent implements OnInit {
     
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.paiements = response;
-          console.log(this.paiements);
+          // console.log(this.paiements);
         },
         error: (errors) => {
           console.log(errors);
@@ -63,7 +76,7 @@ export class PaiementComponent implements OnInit {
     }
     getAllFacture() {
       //  console.log(this.numeroValue.value);
-      this.factureService.getAll()
+      this.factureService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.factures = response;
@@ -112,10 +125,21 @@ export class PaiementComponent implements OnInit {
       
     }
     
+    savePrint() {
+      if (this.paiementForm.valid)
+      {
+        this.addPrint();
+      } else {
+        this.validateAllFields(this.paiementForm);
+      }
+      
+    }
+    
     add() {
       const request = {
         factureId: this.factureIdValue.value.id,
-        montantPayer: this.montantPayerValue.value
+        montantPayer: this.montantPayerValue.value,
+        utilisateurId: this.utilisateurId
       }
       // console.log(request);
       this.service.add(request)
@@ -138,6 +162,43 @@ export class PaiementComponent implements OnInit {
       });
     }
     
+    addPrint() {
+      const request = {
+        factureId: this.factureIdValue.value.id,
+        montantPayer: this.montantPayerValue.value,
+        utilisateurId: this.utilisateurId
+      }
+      console.log(request);
+      this.service.add(request)
+      .subscribe({
+        next: (response) => {
+          // this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.getAll();
+          this.reset();
+          this.paiementId = response;
+          // console.log(this.paiementId);
+          this.Print(this.paiementId)
+        },
+        complete: () => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+          this.getAll();
+          this.reset();
+        },
+        error: (e) => {
+          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+          this.getAll();
+          this.reset();
+        }
+      });
+    }
+    
+    Print(id: any) {
+      this.service.Print(id).subscribe(res => {
+        let blob: Blob = res.body as Blob;
+        let url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
+    }
     // update() {
     //   const request = {
     //     familleId: this.familleIdValue.value.id,
@@ -239,6 +300,9 @@ export class PaiementComponent implements OnInit {
       // this.reset();
     }
     
+    onGlobalFilter(table: Table, event: Event) {
+      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    }
     
     private validateAllFields(formGroup: FormGroup) {
       Object.keys(formGroup.controls).forEach((field) => {

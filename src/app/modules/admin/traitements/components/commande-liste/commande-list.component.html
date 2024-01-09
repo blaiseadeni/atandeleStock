@@ -6,7 +6,7 @@
 	#dt 
 	[columns]="cols"
 	responsiveLayout="scroll" 
-	[globalFilterFields]="['name','country.name']" 
+	[globalFilterFields]="['numeroCommande','dateCommande']" 
 	[rows]="10" 
 	[paginator]="true" 
 	[rowsPerPageOptions]="[10,20,30]" 
@@ -33,12 +33,13 @@
 			<th pSortableColumn="name">Date Commande <p-sortIcon field="name"></p-sortIcon></th>
 			<th pSortableColumn="name">Date Livraison <p-sortIcon field="name"></p-sortIcon></th>
 			<th pSortableColumn="price">Fournisseur <p-sortIcon field="price"></p-sortIcon></th>
-			<th pSortableColumn="category">Monnaie <p-sortIcon field="category"></p-sortIcon></th>
-			<th pSortableColumn="rating">Taux de change <p-sortIcon field="rating"></p-sortIcon></th>
-			<th pSortableColumn="inventoryStatus">Echeance <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
-			<th pSortableColumn="inventoryStatus">Concerne <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
-			<th pSortableColumn="inventoryStatus">Status <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+			<!-- <th pSortableColumn="category">Monnaie <p-sortIcon field="category"></p-sortIcon></th> -->
+			<!-- <th pSortableColumn="rating">Taux de change <p-sortIcon field="rating"></p-sortIcon></th> -->
+			<!-- <th pSortableColumn="inventoryStatus">Echeance <p-sortIcon field="inventoryStatus"></p-sortIcon></th> -->
+			<!-- <th pSortableColumn="inventoryStatus">Concerne <p-sortIcon field="inventoryStatus"></p-sortIcon></th> -->
+			<!-- <th pSortableColumn="inventoryStatus">Status <p-sortIcon field="inventoryStatus"></p-sortIcon></th> -->
 			<th pSortableColumn="inventoryStatus">Créer par <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+			<th></th>
 		</tr>
 	</ng-template>
 	<ng-template pTemplate="body" let-commande let-rowIndex="rowIndex" let-expanded="expanded">
@@ -55,21 +56,25 @@
 		<td style="width:10%; min-width:13rem;" >{{commande.numeroCommande}}</td>
 		<td style="width:10%; min-width:12rem;">{{commande.dateCommande | date:"dd/MM/yyyy"}}</td>
 		<td style="width:10%; min-width:11rem;">{{commande.dateLivraison | date:"dd/MM/yyyy"}}</td>
-		<td style="width:10%; min-width:11rem;">{{commande.fournisseur}}</td>
-		<td style="width:10%; min-width:8rem;">{{commande.monnaie}}</td>
-		<td style="width:10%; min-width:11rem;">{{commande.tauxDeChange}}</td>
-		<td style="width:10%; min-width:10rem;">{{commande.echeance}}</td>
-		<td style="width:10%; min-width:10rem;">{{commande.concerne}}</td>
-		<td style="width:10%; min-width:7rem;">{{commande.status}}</td>
-		<td ></td>
-		<td></td>
+		<td style="width:15%; min-width:15rem;">{{commande.fournisseur}}</td>
+		<!-- <td style="width:10%; min-width:8rem;">{{commande.monnaie}}</td> -->
+		<!-- <td style="width:10%; min-width:11rem;">{{commande.tauxDeChange}}</td> -->
+		<!-- <td style="width:10%; min-width:10rem;">{{commande.echeance}}</td> -->
+		<!-- <td style="width:10%; min-width:10rem;">{{commande.concerne}}</td> -->
+		<!-- <td style="width:10%; min-width:7rem;">{{commande.status}}</td> -->
+		<td style="width:15%; min-width:15rem;">{{commande.utilisateur}}</td>
 		
 		<td>
 			<div class="flex">
 				<button pButton 
+				pRipple icon="pi pi-print" 
+				class="p-button-rounded p-button-primary mr-2" 
+				(click)="PrintInvoice(commande.id)"
+				></button>
+				<!-- <button pButton 
 				pRipple icon="pi pi-pencil" 
 				class="p-button-rounded p-button-success mr-2" 
-				></button>
+				></button> -->
 				<button pButton pRipple 
 				icon="pi pi-trash"
 				(click)="deleteSelected(commande.id)"
@@ -105,8 +110,8 @@
 							<td  style="width:10%; min-width:10rem;">{{commande.quantite}}</td>
 							<td  style="width:10%; min-width:13rem;">{{commande.quantiteLivree}}</td>
 							<td  style="width:10%; min-width:13rem;">{{commande.resteQuantite}}</td>
-							<td  style="width:10%; min-width:10rem;">{{ commande.prixUnit }}</td>
-							<td  style="width:10%; min-width:10rem;">{{ commande.prixTotal }}</td>
+							<td  style="width:10%; min-width:10rem;">{{ commande.prixUnit | currency:"UGX " }}</td>
+							<td  style="width:10%; min-width:10rem;">{{ commande.prixTotal | currency:"UGX " }}</td>
 							<td><p-button type="button" icon="pi pi-plus"></p-button></td>
 						</tr>
 					</ng-template>

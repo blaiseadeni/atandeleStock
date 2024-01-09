@@ -6,13 +6,14 @@
                 <div class="card p-fluid">
                     <h5>Destails de prix d'un article  </h5>
                     <div class="p-formgrid grid">
-                        <div class="field col-3">
+                        <div class="field col-4">
                             <label htmlFor="articleId">Article</label>
                             <p-dropdown
                             placeholder="Sélectionner un article " 
                             [filter]="true"
                             filterBy="designation"
                             [options]="articles"
+                            [autoDisplayFirst]="false"
                             formControlName="articleId"
                             id="articleId"
                             optionLabel="designation"
@@ -24,11 +25,12 @@
                             prixForm.hasError('required', 'articleId')
                             ">* article obligatoire.</small>
                         </div>
-                        <div class="field col-3">
+                        <!-- <div class="field col-3">
                             <label htmlFor="locationId">Location</label>
                             <p-dropdown
                             placeholder="Sélectionner une location " 
                             [filter]="true"
+                            [autoDisplayFirst]="false"
                             [options]="locations"
                             optionLabel="designation"
                             formControlName="locationId"
@@ -41,8 +43,8 @@
                             prixForm.controls['locationId'].dirty &&
                             prixForm.hasError('required', 'locationId')
                             ">* location obligatoire.</small>
-                        </div>
-                        <div class="field col-2">
+                        </div> -->
+                        <!-- <div class="field col-2">
                             <label htmlFor="monnaie">Monnaie</label>
                             <p-dropdown
                             placeholder="Monnaie " 
@@ -59,8 +61,8 @@
                             prixForm.controls['monnaie'].dirty &&
                             prixForm.hasError('required', 'monnaie')
                             ">* monnaie obligatoire.</small>
-                        </div>
-                        <div class="field col-2">
+                        </div> -->
+                        <div class="field col-4">
                             <label htmlFor="prixVenteGros">Prix de vente gros</label>
                             <p-inputNumber 
                             inputId="locale-user"
@@ -75,7 +77,7 @@
                         prixForm.hasError('required', 'prixVenteGros')
                         ">* prix de gros obligatoire.</small>
                     </div>
-                    <div class="field col-2">
+                    <div class="field col-4">
                         <label htmlFor="prixVenteDetail">Prix de vente detail</label>
                         <p-inputNumber  
                         formControlName="prixVenteDetail"
@@ -138,34 +140,41 @@
             <th>#</th>
             <th pSortableColumn="title">Article <p-sortIcon field="title"></p-sortIcon></th>
             <th pSortableColumn="title">Location <p-sortIcon field="title"></p-sortIcon></th>
-            <th pSortableColumn="title">Monnaie <p-sortIcon field="title"></p-sortIcon></th>
             <th pSortableColumn="title">Prix de vente gros <p-sortIcon field="title"></p-sortIcon></th>
             <th pSortableColumn="title">Prix de vente detail <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="title">Créer /Modifier le <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="title">Créer par <p-sortIcon field="title"></p-sortIcon></th>
             <th></th>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-prix let-rowIndex="rowIndex">
         <tr>
-            <td>{{rowIndex+1}}</td>
+            <td style="width:14%; min-width:5rem;">
+                {{rowIndex+1}}
+            </td>
             <td style="width:14%; min-width:15rem;">
                 <span class="p-column-title">Article</span>
-                {{prix.article}}
+                {{prix.article|uppercase}}
             </td>
-            <td style="width:14%; min-width:15rem;">
+            <td style="width:14%; min-width:10rem;">
                 <span class="p-column-title">Location</span>
-                {{prix.location}}
+                {{prix.location|uppercase}}
             </td>
-            <td style="width:14%; min-width:15rem;">
-                <span class="p-column-title">Monnaie</span>
-                {{prix.monnaie}}
-            </td>
-            <td style="width:14%; min-width:15rem;">
+            <td style="width:14%; min-width:12rem;">
                 <span class="p-column-title">Prix de vente gros </span>
-                {{prix.prixVenteGros}}
+                {{prix.prixVenteGros | currency:"UGX "}}
+            </td>
+            <td style="width:14%; min-width:12rem;">
+                <span class="p-column-title">Prix de vente detail </span>
+                {{prix.prixVenteDetail | currency:"UGX "}}
+            </td>
+            <td style="width:14%; min-width:12rem;">
+                <span class="p-column-title">date </span>
+                {{prix.created|date:"dd/MM/yyyy"}}
             </td>
             <td style="width:14%; min-width:13rem;">
-                <span class="p-column-title">Prix de vente detail </span>
-                {{prix.prixVenteDetail}}
+                <span class="p-column-title">utilisateur </span>
+                {{prix.utilisateur| uppercase}}
             </td>
             
             <td>
@@ -194,20 +203,19 @@ header="Details Paiement"
 [modal]="true" class="p-fluid">
 <ng-template pTemplate="content">
     
-    <form [formGroup]="paiementForm">
+    <form [formGroup]="prixForm">
         <div class="field">
             <label for="name">Title 1</label>
             <input type="text"
             pInputText 
             id="value1"
             formControlName="value1"
-            autofocus
             placeholder="saisir le title 1"/>
             <small
             class="p-error"
             *ngIf="
-            paiementForm.controls['value1'].dirty &&
-            paiementForm.hasError('required', 'value1')
+            prixForm.controls['value1'].dirty &&
+            prixForm.hasError('required', 'value1')
             ">* Value1 is required.</small>
         </div>
         
@@ -217,13 +225,12 @@ header="Details Paiement"
             pInputText
             id="value2"
             formControlName="value2"
-            autofocus
             placeholder="saisir le title 2"/>
             <small
             class="p-error"
             *ngIf="
-            paiementForm.controls['value2'].dirty &&
-            paiementForm.hasError('required', 'value2')
+            prixForm.controls['value2'].dirty &&
+            prixForm.hasError('required', 'value2')
             ">* Value1 is required.</small>
         </div>
     </form>

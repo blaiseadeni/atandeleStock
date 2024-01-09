@@ -6,15 +6,15 @@
 				<div class="card p-fluid">
 					<h5>Entête d'achat </h5>
 					<div class="p-formgrid grid">
-						<div class="field col-3">
+						<!-- <div class="field col-3">
 							<label htmlFor="numeroAchat">Numéro Achat</label>
 							<input 
 							pInputText 
 							id="numeroAchat"  
 							formControlName="numeroAchat"
 							type="text" />
-						</div>
-						<div class="field col-3">
+						</div> -->
+						<div class="field col-4">
 							<label htmlFor="numeroFacture">Numéro Facture</label>
 							<input
 							pInputText 
@@ -22,7 +22,7 @@
 							formControlName="numeroFacture"
 							type="text" />
 						</div>
-						<div class="field col-3">
+						<div class="field col-4">
 							<label htmlFor="dateAchat">Date Achat</label>
 							<p-calendar  
 							[showIcon]="true"
@@ -31,7 +31,7 @@
 							inputId="icon"></p-calendar>
 						</div>
 						
-						<div class="field col-3">
+						<!-- <div class="field col-3">
 							<label htmlFor="monnaieId">Monnaie</label>
 							<p-dropdown
 							placeholder="Sélectionner une monnaie " 
@@ -42,39 +42,41 @@
 							optionLabel="devise"
 							filterBy="devise"
 							[showClear]="true"></p-dropdown>
-						</div>
-						<div class="field col-4">
+						</div> -->
+						<!-- <div class="field col-4">
 							<label htmlFor="tauxAchat">Taux d'achat</label>
 							<input 
 							pInputText
 							id="tauxAchat" 
 							formControlName="tauxAchat"
 							type="text" />
-						</div>
+						</div> -->
 						<div class="field col-4">
 							<label htmlFor="email2">Fournisseur</label>
 							<p-dropdown
 							placeholder="Sélectionner un fournisseur " 
 							[filter]="true"
 							[options]="fournisseurs"
+							[autoDisplayFirst]="false"
 							id="fournisseurId"
 							formControlName="fournisseurId"
 							optionLabel="nom"
 							filterBy="nom"
 							[showClear]="true"></p-dropdown>
 						</div>
-						<div class="field col-4">
+						<!-- <div class="field col-4">
 							<label htmlFor="locationId">Location</label>
 							<p-dropdown
 							placeholder="Sélectionner une location " 
 							[filter]="true"
+							[autoDisplayFirst]="false"
 							[options]="locations"
 							id="locationId"
 							formControlName="locationId"
 							optionLabel="designation"
 							filterBy="designation"
 							[showClear]="true"></p-dropdown>
-						</div>
+						</div> -->
 						
 					</div>
 				</div>
@@ -142,6 +144,7 @@
 								<p-dropdown
 								placeholder="Sélectionner un article " 
 								[filter]="true"
+								[autoDisplayFirst]="false"
 								[options]="articles"
 								optionLabel="designation"
 								filterBy="designation"
@@ -157,6 +160,7 @@
 								placeholder="Sélectionner un emballage " 
 								[filter]="true"
 								[options]="monTableau1[rowIndex]"
+								[autoDisplayFirst]="false"
 								optionLabel="libelle"
 								id="emballage"
 								formControlName="emballage"
@@ -229,7 +233,9 @@
 			</div>
 			<div  class="ml-3">
 				<button pButton pRipple 
-				label="Enregistrer et Imprimer(B.E)" icon="pi pi-print" 
+				label="Enregistrer et Imprimer(B.E)" 
+				(click)="savePrint()"
+				icon="pi pi-print" 
 				class="p-button-success"></button>
 			</div>
 		</div>

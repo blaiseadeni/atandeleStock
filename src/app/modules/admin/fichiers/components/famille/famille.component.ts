@@ -3,6 +3,8 @@ import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FamilleService } from '../../services/famille.service';
 import { Table } from 'primeng/table';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { tick } from '@angular/core/testing';
 
 interface Item {
   name: string,
@@ -31,10 +33,14 @@ export class FamilleComponent  implements OnInit{
   items!: Item[];
   selectedItems!: Item[];
   
+  utilisateurId: any;
+  locationId: any;
+  
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
-    private service: FamilleService
+    private service: FamilleService,
+    private jwtHelper: JwtHelperService
     ) {}
     
     ngOnInit(): void{
@@ -42,15 +48,20 @@ export class FamilleComponent  implements OnInit{
         libelle : new FormControl('', Validators.required),
       });
       
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
+      this.locationId = decodeJWT.locationId;
       this.getAll();
     }
     
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.familles = response;
+          // console.log(this.familles);
         },
         error: (errors) => {
           console.log(errors);
@@ -77,7 +88,7 @@ export class FamilleComponent  implements OnInit{
     add() {
       const request = {
         libelle: this.libelleValue.value,
-        
+        utilisateurId: this.utilisateurId
       }
       this.service.add(request)
       .subscribe({
@@ -102,6 +113,7 @@ export class FamilleComponent  implements OnInit{
     update() {
       const request = {
         libelle: this.libelleValue.value,
+        utilisateurId: this.utilisateurId
         
       }
       

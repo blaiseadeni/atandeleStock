@@ -6,12 +6,13 @@
                     <h5>Entête de livraison </h5>
                     <div class="p-formgrid grid">
                         <p-toast></p-toast>
-                        <div class="field col-3">
+                        <div class="field col-4">
                             <label htmlFor="email2">Numéro Commande</label>
                             <p-dropdown
                             placeholder="Sélectionner un numero " 
                             [filter]="true"
                             [options]="commandes"
+                            [autoDisplayFirst]="false"
                             (onChange)="getCommande($event)"
                             optionLabel="numeroCommande"
                             formControlName="numeroCommande"
@@ -20,28 +21,29 @@
                             [showClear]="true"></p-dropdown>
                         </div>
                         
-                        <div class="field col-3">
+                        <!-- <div class="field col-3">
                             <label htmlFor="email2">Location</label>
                             <p-dropdown
                             placeholder="Sélectionner une Location " 
                             [filter]="true"
                             [options]="locations"
+                            [autoDisplayFirst]="false"
                             formControlName="locationId"
                             id="locationId"
                             optionLabel="designation"
                             filterBy="designation"
                             [showClear]="true"></p-dropdown>
-                        </div>
+                        </div> -->
                         
-                        <div class="field col-3">
+                        <!-- <div class="field col-3">
                             <label htmlFor="name2">Numéro Livraison</label>
                             <input pInputText
                             id="numeroLivraison"  
                             formControlName="numeroLivraison"
                             type="text" />
-                        </div>
+                        </div> -->
                         
-                        <div class="field col-3">
+                        <div class="field col-4">
                             <label htmlFor="email2">Date Livraison</label>
                             <input pInputText 
                             id="dateLivraison"  
@@ -49,22 +51,22 @@
                             disabled type="text" />
                         </div>
                         
-                        <div class="field col-3">
+                        <div class="field col-4">
                             <label htmlFor="email2">Fournisseur</label>
                             <input pInputText 
                             id="fournisseur" 
                             formControlName="fournisseur"
                             disabled type="text" />
                         </div>
-                        <div class="field col-3">
+                        <!-- <div class="field col-2">
                             <label htmlFor="email2">Monnaie</label>
                             <input pInputText
                             id="monnaieId" 
                             formControlName="monnaieId"
                             disabled type="text" />
-                        </div>
+                        </div> -->
                         
-                        <div class="field col-6">
+                        <div class="field col-12">
                             <label htmlFor="email2">Description</label>
                             <textarea rows="5" 
                             cols="30" 
@@ -122,15 +124,16 @@
                         <th>
                             Livraison actuelle 
                         </th>
+                        <th >
+                            Prix unitaire
+                        </th>
                         <th>
                             Quantité livrée
                         </th>
                         <th>
                             Quantité restante
                         </th>
-                        <th >
-                            Prix unitaire
-                        </th>
+                        
                         <th >
                             Prix totale
                         </th>
@@ -151,6 +154,7 @@
                                 [filter]="true"
                                 [options]="articles"
                                 formControlName="articleId"
+                                [autoDisplayFirst]="false"
                                 id="articleId"
                                 optionLabel="article"
                                 (onChange)="getCommandeDetails($event, rowIndex)"
@@ -180,42 +184,43 @@
                             <span class="p-column-title">Livraison actuelle</span>
                             <p-inputNumber 
                             id="livraisonActu"
-                            (pointerout)="verify(rowIndex)"
+                            (onInput)="verify(rowIndex)"
                             formControlName="livraisonActu"
                             [minFractionDigits]="2">
                         </p-inputNumber>
                         
                     </td>
-                    <td style="width:3%; min-width:8rem;">
-                        <span class="p-column-title">Qte livrée</span>
-                        <p-inputNumber [disabled]="true"
-                        id="quantiteLivree"
-                        formControlName="quantiteLivree"
+                    <td style="width:14%; min-width:8rem;">
+                        <span class="p-column-title">PU</span>
+                        <p-inputNumber 
+                        id="prixUnit"
+                        (onInput)="calculation(rowIndex)"
+                        formControlName="prixUnit"
                         [minFractionDigits]="2">
                     </p-inputNumber>
                     
                 </td>
                 <td style="width:3%; min-width:8rem;">
-                    <span class="p-column-title">Qte restante</span>
-                    <p-inputNumber
-                    [disabled]="true" 
-                    id="resteQuantite"
-                    formControlName="resteQuantite"
-                    inputId="locale-user"
+                    <span class="p-column-title">Qte livrée</span>
+                    <p-inputNumber [disabled]="true"
+                    id="quantiteLivree"
+                    formControlName="quantiteLivree"
                     [minFractionDigits]="2">
                 </p-inputNumber>
                 
             </td>
-            <td style="width:14%; min-width:8rem;">
-                <span class="p-column-title">PU</span>
-                <p-inputNumber 
+            <td style="width:3%; min-width:8rem;">
+                <span class="p-column-title">Qte restante</span>
+                <p-inputNumber
                 [disabled]="true" 
-                id="prixUnit"
-                formControlName="prixUnit"
+                id="resteQuantite"
+                formControlName="resteQuantite"
+                inputId="locale-user"
                 [minFractionDigits]="2">
             </p-inputNumber>
             
         </td>
+        
         <td style="width:14%; min-width:8rem;">
             <span class="p-column-title">PT</span>
             <p-inputNumber
@@ -256,7 +261,9 @@
             </div>
             <div  class="ml-3">
                 <button pButton pRipple 
-                label="Enregistrer et Imprimer(B.L)" icon="pi pi-print" 
+                label="Enregistrer et Imprimer(B.L)"
+                (click)="savePrint()"
+                icon="pi pi-print" 
                 class="p-button-success"></button>
             </div>
         </div>
@@ -276,3 +283,5 @@
 </div>
 </div>
 </div>
+
+

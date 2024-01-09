@@ -9,6 +9,8 @@ import { PrimengModule } from './_primeng/primeng.module';
 
 import { AppHelpComponent } from './pages/shared/help/app.help.component';
 import { AppComponent } from './app.component';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+
 
 
 @NgModule({
@@ -19,11 +21,14 @@ import { AppComponent } from './app.component';
         HttpClientModule,
         BrowserAnimationsModule,
         AppRoutingModule, 
-        PrimengModule
+        PrimengModule,
+        NgxExtendedPdfViewerModule
+        
     ],
     declarations: [
         AppComponent,
         AppHelpComponent,
+        
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },

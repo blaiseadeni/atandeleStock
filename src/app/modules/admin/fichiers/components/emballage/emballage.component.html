@@ -15,7 +15,7 @@
             <p-table #dt 
             [columns]="cols"
             responsiveLayout="scroll" 
-            [globalFilterFields]="['name','country.name']" 
+            [globalFilterFields]="['libelle']" 
             [rows]="10" 
             [value]="emballages"
             [paginator]="true" 
@@ -46,21 +46,21 @@
             <ng-template pTemplate="body" let-emballage let-rowIndex="rowIndex">
                 <tr>
                     
-                    <td style="width:7%; min-width:5rem;">
+                    <td style="width:25%; min-width:5rem;">
                         <span class="p-column-title">#</span>
                         {{rowIndex+1}}
                     </td>
                     <td style="width:25%; min-width:10rem;">
                         <span class="p-column-title">Libellé</span>
-                        {{emballage.libelle}}
-                    </td>
-                    <td style="width:25%; min-width:10rem;">
-                        <span class="p-column-title">Créer par</span>
-                        {{emballage.created | date: "dd/MM/yyyy"}}
+                        {{emballage.libelle | uppercase}}
                     </td>
                     <td style="width:25%; min-width:10rem;">
                         <span class="p-column-title">Créer le</span>
-                        
+                        {{emballage.created | date: "dd/MM/yyyy"}}
+                    </td>
+                    <td style="width:25%; min-width:10rem;">
+                        <span class="p-column-title">Créer par</span>
+                        {{emballage.utilisateur | uppercase}}
                     </td>
                     
                     
@@ -92,12 +92,11 @@ header="Details Emballage"
     <form [formGroup]="emballageForm">
         
         <div class="field">
-            <label for="name">Libellé</label>
+            <label for="libelle">Libellé</label>
             <input type="text" 
             pInputText 
             id="libelle"
             formControlName="libelle"
-            autofocus
             placeholder="saisir le libellé"/>
             <span class="p-error"
             *ngIf="emballageForm.controls['libelle'].dirty &&

@@ -1,5 +1,5 @@
 <div class="layout-topbar">
-    
+    <p-toast></p-toast>
     <a href="#" class="layout-topbar-logo">
         <img id="layout-topbar-logo" src="assets/layout/images/logo-white.png" alt="babylon-layout" />
     </a>
@@ -13,9 +13,9 @@
     </a>
     
     <ul class="topbar-menu fadeInDown" [ngClass]="{'topbar-menu-visible': appMain.topbarMenuActive}">
-        <li #messages class="mt-1" [ngClass]="{'active-topmenuitem':appMain.activeTopbarItem === messages}">
-            <span class="text-white "><i class="pi pi-user "></i> : rootadmin</span><br>
-            <span class="text-white"><i class="pi pi-link "></i> : rootadmin@gmail.com</span>
+        <li #messages class="mt-3" [ngClass]="{'active-topmenuitem':appMain.activeTopbarItem === messages}">
+            <span class="text-white ">{{utilisateur}}</span><br>
+            <!-- <span class="text-white"><i class="pi pi-link "></i> : rootadmin@gmail.com</span> -->
         </li>
         <!--  -->
         <li #profile class="user-profile" *ngIf="app.profileMode==='popup'||appMain.isHorizontal()"
@@ -26,7 +26,7 @@
         </a>
         <ul class="fadeInDown">
             <li role="menuitem">
-                <a href="#" (click)="appMain.onTopbarSubItemClick($event)">
+                <a href="#" (click)="appMain.onTopbarSubItemClick($event); ouvrirDialog()">
                     <i class="pi pi-user"></i>
                     <span>Profile</span>
                 </a>
@@ -34,7 +34,7 @@
             
             
             <li role="menuitem">
-                <a href="#" (click)="appMain.onTopbarSubItemClick($event)">
+                <a href="#" (click)="logOut()">
                     <i class="pi pi-sign-out"></i>
                     <span>Se déconnecter</span>
                 </a>
@@ -44,3 +44,77 @@
 </ul>
 
 </div>
+
+
+<p-dialog [(visible)]="loginDialog" 
+[style]="{width: '500px'}"
+header="Details Login" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    
+    <form [formGroup]="loginForm">
+        
+        <div class="field">
+            <label for="userName">Utilisateur</label>
+            <input type="text"
+            pInputText 
+            id="userName"
+            formControlName="userName"
+            autofocus/>
+            <small
+            class="p-error"
+            *ngIf="
+            loginForm.controls['userName'].dirty &&
+            loginForm.hasError('required', 'userName')
+            ">* userName obligatoire.</small>
+        </div>
+        
+        <div class="field">
+            <label for="password">Nouveau mot de passe</label>
+            <input type="text"
+            pInputText 
+            id="password"
+            formControlName="password"
+            placeholder="saisir le nouveau mot de passe"
+            autofocus/>
+            <small
+            class="p-error"
+            *ngIf="
+            loginForm.controls['password'].dirty &&
+            loginForm.hasError('required', 'password')
+            ">* password obligatoire.</small>
+        </div>
+        
+        <div class="field">
+            <label for="newPassword">Confirmation mot de passe</label>
+            <input type="text"
+            pInputText 
+            id="newPassword"
+            formControlName="newPassword"
+            autofocus
+            placeholder="confirmer le nouveau mot de passe"/>
+            <small
+            class="p-error"
+            *ngIf="
+            loginForm.controls['newPassword'].dirty &&
+            loginForm.hasError('required', 'newPassword')
+            ">* newPassword obligatoire.</small>
+        </div>
+    </form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Modifier" icon="pi pi-save" 
+        class="p-button-success" 
+        [disabled]="!loginForm.valid "
+        (click)="save()"></button>
+    </div>
+</ng-template>
+</p-dialog>

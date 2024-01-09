@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ParametresComponent } from './parametres.component';
 import { SocieteComponent } from './components/societe/societe.component';
 import { UtilisateurComponent } from './components/utilisateur/utilisateur.component';
+import { DashboardComponent } from 'src/app/pages/layouts/admin/dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: 'societe', component: SocieteComponent },

@@ -9,6 +9,12 @@
                         class="p-button-primary" 
                         (click)="ouvrirDialog()"></button>
                     </div>
+                    <div class="my-2 ml-3" [hidden]="role === 'FACTURIER'">
+                        <button pButton pRipple 
+                        label="Vérification des dépenses" icon="pi pi-search" 
+                        class="p-button-warning" 
+                        (click)="ouvrirVDialog()"></button>
+                    </div>
                 </ng-template>
             </p-toolbar>
             <p-toast></p-toast>
@@ -16,7 +22,7 @@
             #dt 
             [columns]="cols"
             responsiveLayout="scroll" 
-            [globalFilterFields]="['name','country.name']" 
+            [globalFilterFields]="['created','utilisateur']" 
             [rows]="10" 
             [paginator]="true" 
             [rowsPerPageOptions]="[10,20,30]" 
@@ -43,7 +49,7 @@
                     <th pSortableColumn="title">Bénéficiaire<p-sortIcon field="title"></p-sortIcon></th>
                     <th pSortableColumn="title">Créer le<p-sortIcon field="title"></p-sortIcon></th>
                     <th pSortableColumn="title">Créer par<p-sortIcon field="title"></p-sortIcon></th>
-                    <th></th>
+                    <th [hidden]="role === 'FACTURIER'"></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-depense let-rowIndex="rowIndex">
@@ -52,29 +58,29 @@
                         <span class="p-column-title">numero</span>
                         {{rowIndex+1}}
                     </td>
-                    <td style="width:8%; min-width:20rem;">
+                    <td style="width:25%; min-width:20rem;">
                         <span class="p-column-title">Motif</span>
-                        {{depense.motif}}
+                        {{depense.motif|uppercase}}
                     </td>
-                    <td style="width:10%; min-width:10rem;">
+                    <td style="width:25%; min-width:10rem;">
                         <span class="p-column-title">Montant</span>
-                        {{depense.montant}}
+                        {{depense.montant | currency:"UGX "}}
                     </td>
-                    <td style="width:10%; min-width:15rem;">
+                    <td style="width:25%; min-width:15rem;">
                         <span class="p-column-title">beneficiaire</span>
-                        {{depense.beneficiaire}}
+                        {{depense.beneficiaire|uppercase}}
                     </td>
-                    <td style="width:14%; min-width:15rem;">
+                    <td style="width:25%; min-width:15rem;">
                         <span class="p-column-title">creer le</span>
                         {{depense.created | date:"dd/MM/yyyy"}}
                     </td>
-                    <td style="width:10%; min-width:11rem;">
+                    <td style="width:25%; min-width:11rem;">
                         <span class="p-column-title">creer par</span>
-                        
+                        {{depense.utilisateur|uppercase}}
                     </td>
                     
                     
-                    <td>
+                    <td [hidden]="role === 'FACTURIER'">
                         <div class="flex">
                             <button pButton 
                             pRipple icon="pi pi-pencil" 
@@ -125,7 +131,6 @@ header="Details Dépense"
             type="number"
             id="montant"
             formControlName="montant"
-            autofocus
             placeholder="saisir la montant"></p-inputNumber>
             <small
             class="p-error"
@@ -141,7 +146,6 @@ header="Details Dépense"
             pInputText 
             id="beneficiaire"
             formControlName="beneficiaire"
-            autofocus
             placeholder="saisir le beneficiaire"/>
             <small
             class="p-error"
@@ -177,4 +181,67 @@ header="Details Dépense"
         <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non" (click)="hideSelect()"></button>
         <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui" (click)="delete(depense.id)"></button>
     </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="verificationDialog" 
+[style]="{width: '500px'}"
+header="Details Vérification" 
+[modal]="true" class="p-fluid">
+<ng-template pTemplate="content">
+    <form [formGroup]="verificationForm">
+        
+        <div class="grid p-fluid mt-3">
+            <div class="field col-12 md:col-6">
+                <label for="date1">Date 1</label>
+                <p-calendar
+                [showIcon]="true" 
+                formControlName="date1"
+                id="date1"
+                dateFormat="yy-mm-dd"
+                placeholder="Sélectionner la date 1"
+                appendTo="body"
+                inputId="icon">
+            </p-calendar>
+            <span class="p-error" *ngIf="verificationForm.controls['date1'].dirty
+            && verificationForm.hasError('required','date1')">
+            * date 1 obligatoire
+        </span>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+        <label for="date2">Date 2 </label>
+        <p-calendar
+        [showIcon]="true" 
+        formControlName="date2"
+        id="date2"
+        dateFormat="yy-mm-dd"
+        appendTo="body"
+        placeholder="Sélectionner la date "
+        inputId="icon">
+    </p-calendar>
+    <span class="p-error"
+    *ngIf="verificationForm.controls['date2'].dirty &&
+    verificationForm.hasError('required','date2')">
+    * date 1 obligatoire
+</span>
+</div>
+</div>
+<h4 style="color: brown;"> {{montant.montant | currency:"UGX "}}</h4>
+</form>
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <div class="button-container">
+        <button pButton pRipple 
+        label="Fermer" icon="pi pi-times" 
+        class="p-button-danger" 
+        (click)="fermerVDialog()"></button>
+        
+        <button pButton pRipple 
+        label="Vérifier" icon="pi pi-search" 
+        class="p-button-warning" 
+        (click)="getAmount()"></button>
+    </div>
+    
+</ng-template>
 </p-dialog>

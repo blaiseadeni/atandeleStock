@@ -103,24 +103,29 @@ export class LocationComponent implements OnInit {
         numeroLivraison: this.numeroLivraisonValue.value,
         
       }
-      this.service.add(request)
-      .subscribe({
-        next: (response) => {
-          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
-          this.getAll();
-          this.reset();
-        },
-        complete: () => {
-          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
-          this.getAll();
-          this.reset();
-        },
-        error: (e) => {
-          this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
-          this.getAll();
-          this.reset();
-        }
-      });
+      if (request.dateCreation.getTime() > request.dateCloture.getTime()) {
+        this.messageService.add({ severity: 'error', summary: 'Info', detail: 'Dates invalides', life: 3000 });
+      } else {
+        
+        this.service.add(request)
+        .subscribe({
+          next: (response) => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+            this.getAll();
+            this.reset();
+          },
+          complete: () => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
+            this.getAll();
+            this.reset();
+          },
+          error: (e) => {
+            this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
+            this.getAll();
+            this.reset();
+          }
+        });
+      }
     }
     
     update() {
@@ -137,24 +142,28 @@ export class LocationComponent implements OnInit {
         numeroLivraison: this.numeroLivraisonValue.value,
         
       }
-      
-      this.service.update(this.location.id, request)
-      .subscribe({
-        next: (response) => {
-          this.getAll();
-          this.reset();
-        },
-        complete: () => {
-          this.messageService.add({ severity: 'success', summary: 'Modification', detail: ' Modifier avec succès', life: 3000 });
-          this.getAll();
-          this.reset();
-        },
-        error: (e) => {
-          this.messageService.add({ severity: 'success', summary: 'Modification', detail: 'Modifier avec succès', life: 3000 });
-          this.getAll();
-          this.reset();
-        }
-      })
+      if (request.dateCreation.getTime() > request.dateCloture.getTime()) {
+        this.messageService.add({ severity: 'error', summary: 'Info', detail: 'Dates invalides', life: 3000 });
+      } else {
+        
+        this.service.update(this.location.id, request)
+        .subscribe({
+          next: (response) => {
+            this.getAll();
+            this.reset();
+          },
+          complete: () => {
+            this.messageService.add({ severity: 'success', summary: 'Modification', detail: ' Modifier avec succès', life: 3000 });
+            this.getAll();
+            this.reset();
+          },
+          error: (e) => {
+            this.messageService.add({ severity: 'success', summary: 'Modification', detail: 'Modifier avec succès', life: 3000 });
+            this.getAll();
+            this.reset();
+          }
+        })
+      }
     }
     
     delete(id: any) {

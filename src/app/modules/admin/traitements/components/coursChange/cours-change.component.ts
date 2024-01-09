@@ -3,6 +3,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { CoursDeChangeService } from '../../../fichiers/services/cours-de-change.service';
 import { MonnaieService } from '../../../fichiers/services/monnaie.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'app-validation-declaration',
@@ -24,10 +25,13 @@ export class CoursChangeComponent implements OnInit {
   coursChandeDialog: boolean = false;
   coursChaneForm: FormGroup;
   
+  utilisateurId: any;
+  
   constructor(
     private service: CoursDeChangeService,
     private monnaieService: MonnaieService,
     private messageService: MessageService,
+    private jwtHelper:JwtHelperService
     ) { }
     
     
@@ -40,6 +44,10 @@ export class CoursChangeComponent implements OnInit {
       });
       this.getAll();
       this.getAllMonnais();
+      
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.utilisateurId = decodeJWT.utilisateurId;
     }
     
     
@@ -89,7 +97,7 @@ export class CoursChangeComponent implements OnInit {
         tauxAchat: this.tauxAchatValue.value,
         tauxVente: this.tauxVenteValue.value,
         monnaie: this.monnaieValue.value.devise,
-        
+        utilisateurId: this.utilisateurId
       }
       this.service.add(request)
       .subscribe({
@@ -117,6 +125,7 @@ export class CoursChangeComponent implements OnInit {
         tauxAchat: this.tauxAchatValue.value,
         tauxVente: this.tauxVenteValue.value,
         monnaie: this.monnaieValue.value.devise,
+        utilisateurId: this.utilisateurId
         
       }
       
@@ -169,7 +178,7 @@ export class CoursChangeComponent implements OnInit {
           this.coursChaneForm.get("tauxAchat")?.patchValue(this.coursChange.tauxAchat);
           this.coursChaneForm.get("tauxVente")?.patchValue(this.coursChange.tauxVente);
           this.coursChaneForm.get("monnaie")?.patchValue(this.coursChange.monnaie);
-        
+          
           this.coursChandeDialog = true;
         },
         error: (response) => {
@@ -179,10 +188,10 @@ export class CoursChangeComponent implements OnInit {
     }
     
     reset() {
-       this.coursChaneForm.get("dateEncours")?.patchValue('');
-          this.coursChaneForm.get("tauxAchat")?.patchValue('');
-          this.coursChaneForm.get("tauxVente")?.patchValue('');
-          this.coursChaneForm.get("monnaie")?.patchValue('');
+      this.coursChaneForm.get("dateEncours")?.patchValue('');
+      this.coursChaneForm.get("tauxAchat")?.patchValue('');
+      this.coursChaneForm.get("tauxVente")?.patchValue('');
+      this.coursChaneForm.get("monnaie")?.patchValue('');
       this.coursChange = {};
     }
     
@@ -190,7 +199,7 @@ export class CoursChangeComponent implements OnInit {
       this.service.get(id)
       .subscribe({
         next: (response) => {
-           this.coursChange = response;
+          this.coursChange = response;
           this.deleteDialog = true;
         },
         error: (response) => {

@@ -6,8 +6,8 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class PaiementService {
-
- baseApiUrl: string = environment.baseApiUrl;
+  
+  baseApiUrl: string = environment.baseApiUrl;
   
   private headers = {
     headers: new HttpHeaders().set('Content-Type', 'application/json')
@@ -15,8 +15,8 @@ export class PaiementService {
   
   constructor(private http: HttpClient) { }
   
-  getAll(){
-    return this.http.get(this.baseApiUrl + 'api/Paiement');
+  getAll(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Paiement/all/'+id);
   }
   
   add(entity: any){
@@ -35,5 +35,9 @@ export class PaiementService {
   
   delete(id?: string){
     return this.http.delete(this.baseApiUrl +'api/Paiement/' + id);
+  }
+  
+  Print(id:any){
+    return this.http.get(this.baseApiUrl + 'api/Report/paie/' + id,{observe:'response',responseType:'blob'});
   }
 }

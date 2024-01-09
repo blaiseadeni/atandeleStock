@@ -5,6 +5,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { UtilisateurService } from '../../services/utilisateur.service';
 import { RoleService } from '../../services/role.service';
 import { LocationService } from '../../../fichiers/services/location.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 
 @Component({
@@ -32,12 +33,15 @@ export class UtilisateurComponent {
   utilisateurDialog: boolean = false;
   utilisateurForm: FormGroup;
   
+  locationId: any;
+  
   constructor(
     private service: UtilisateurService,
     private roleService: RoleService,
     private locationService: LocationService,
     private fb: FormBuilder,
     private messageService: MessageService,
+    private jwtHelper:JwtHelperService
     ) { }
     
     ngOnInit(): void {
@@ -53,16 +57,21 @@ export class UtilisateurComponent {
         libelle: new FormControl('', Validators.required),
       });
       
+      const token = localStorage.getItem('jwt');
+      const decodeJWT = this.jwtHelper.decodeToken(token);
+      this.locationId = decodeJWT.locationId;
+      
       this.getAll();
       this.getAllLocations();
       this.getAllRoles();
     }
     
     getAll() {
-      this.service.getAll()
+      this.service.getAll(this.locationId)
       .subscribe({
         next: (response) => {
-          this.utilisateur = response;
+          this.utilisateurs = response;
+          console.log(this.utilisateurs);
         },
         error: (errors) => {
           console.log(errors);
@@ -71,7 +80,7 @@ export class UtilisateurComponent {
     }
     
     getAllRoles() {
-      this.roleService.getAll()
+      this.roleService.getAll(this.locationId)
       .subscribe({
         next: (response) => {
           this.roles = response;
@@ -119,6 +128,7 @@ export class UtilisateurComponent {
         }else{
           this.addRole();
           this.roleDialog = false;
+          
         }
       } else {
         this.validateAllFields(this.roleForm);
@@ -159,7 +169,7 @@ export class UtilisateurComponent {
     addRole() {
       const request = {
         libelle: this.libelleRoleValue.value,
-        
+        locationId:this.locationId
       }
       // console.log(request);
       this.roleService.add(request)
@@ -168,16 +178,19 @@ export class UtilisateurComponent {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
           this.getAllRoles();
           this.resetRole();
+          window.location.reload();
         },
         complete: () => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: ' Enregistrer avec succès', life: 3000 });
           this.getAllRoles();
           this.resetRole();
+          window.location.reload();
         },
         error: (e) => {
           this.messageService.add({ severity: 'success', summary: 'Enregistrement', detail: 'Enregistrer avec succès', life: 3000 });
           this.getAllRoles();
           this.resetRole();
+          window.location.reload();
         }
       });
     }
@@ -238,7 +251,7 @@ export class UtilisateurComponent {
     
     active(event: any,index:any) {
       const request = {
-        active: event.checked
+        state: event.checked
       }
       const id = this.utilisateurs[index].id
       
@@ -248,21 +261,19 @@ export class UtilisateurComponent {
           
         },
         complete: () => {
-          if (request.active === true) {
+          if (request.state === true) {
             this.messageService.add({ severity: 'success', summary: 'Activation', detail: ' Compte activer avec succès', life: 3000 });
             
           } else {
-            this.messageService.add({ severity: 'success', summary: 'Desactivation', detail: ' Compte desactiver avec succès', life: 3000 });
-            
+            this.messageService.add({ severity: 'error', summary: 'Desactivation', detail: ' Compte desactiver avec succès', life: 3000 });
           }
         },
         error: (e) => {
-          if (request.active === true) {
+          if (request.state === true) {
             this.messageService.add({ severity: 'success', summary: 'Activation', detail: ' Compte activer avec succès', life: 3000 });
             
           } else {
-            this.messageService.add({ severity: 'success', summary: 'Desactivation', detail: ' Compte desactiver avec succès', life: 3000 });
-            
+            this.messageService.add({ severity: 'error', summary: 'Desactivation', detail: ' Compte desactiver avec succès', life: 3000 });
           }
         }
       })
